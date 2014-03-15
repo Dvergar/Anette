@@ -1,0 +1,4 @@
+-main TestServer.hx
+-debug
+-java "bin"
+-cmd "java -jar bin\TestServer-Debug.jar"

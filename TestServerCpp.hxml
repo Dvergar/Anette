@@ -1,0 +1,4 @@
+-main TestServer.hx
+-debug
+-cpp "bin\cpp"
+-cmd "bin\cpp\TestServer-debug.exe"

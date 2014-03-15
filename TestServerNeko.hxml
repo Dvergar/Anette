@@ -1,0 +1,4 @@
+-main TestServer.hx
+-debug
+-neko "_server.n"
+-cmd "neko _server.n"

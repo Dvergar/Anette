@@ -1,0 +1,5 @@
+-main TestClient.hx
+-debug
+-D client
+-neko "_client.n"
+-cmd "neko _client.n"

@@ -1,0 +1,4 @@
+-main TestClient.hx
+-debug
+-swf "_client.swf"
+-cmd "_client.swf"

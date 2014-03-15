@@ -1,0 +1,5 @@
+-main TestClient.hx
+-debug
+-D client
+-cpp "bin\cpp\client"
+-cmd "bin\cpp\client\TestClient-debug.exe"
