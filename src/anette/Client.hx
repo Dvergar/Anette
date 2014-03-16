@@ -11,24 +11,25 @@ import flash.events.ProgressEvent;
 
 class Client implements ISocket.IClientSocket extends BaseHandler
 {
-    var socket:flash.net.Socket = new flash.net.Socket();
+    @:isVar public var connected(get, null):Bool;
     public var connection:Connection;
+    var socket:flash.net.Socket = new flash.net.Socket();
 
-	public function new()
-	{
+    public function new()
+    {
         super();
-		this.connection = new Connection(this, socket);
-	}
+        this.connection = new Connection(this, socket);
+    }
 
-	public function connect(ip:String, port:Int)
-	{
+    public function connect(ip:String, port:Int)
+    {
         socket.connect(ip, port);
         socket.endian = flash.utils.Endian.BIG_ENDIAN;
         socket.addEventListener(Event.CONNECT, onConnect);
         socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecError);
         socket.addEventListener(Event.CLOSE, onClose);
         socket.addEventListener(IOErrorEvent.IO_ERROR, onError);
-	}
+    }
 
     function onConnect(event:Event)
     {
@@ -37,24 +38,21 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 
     public function pump()
     {
-        // Todo : remove, let the user handle this
-        if(socket.connected)
+        try
         {
-            try
-            {
-                while(socket.bytesAvailable > 0)
-                	connection.buffer.addByte(socket.readByte());
-                
-            }
-            catch(error:Dynamic)
-            {
-                trace("Anette : Error " + error);
-                disconnectSocket(socket);
-                
-            }
-
-            connection.readDatas();
+            while(socket.bytesAvailable > 0)
+                connection.buffer.addByte(socket.readByte());
+            
         }
+        catch(error:Dynamic)
+        {
+            trace("Anette : Error " + error);
+            disconnectSocket(socket);
+            
+        }
+
+        connection.readDatas();
+        // }
     }
 
     public function flush()
@@ -94,14 +92,17 @@ class Client implements ISocket.IClientSocket extends BaseHandler
     {
         trace("Anette : FLASH SOCKET SECURITY ERROR");
     }
+
+    public function get_connected() {return socket.connected;}
 }
 
 
 #elseif (cpp||neko||java)
 class Client implements ISocket.IClientSocket extends BaseHandler
 {
-    var socket:sys.net.Socket;
+    @:isVar var connected(get, null):Bool;
     public var connection:Connection;
+    var socket:sys.net.Socket;
 
     public function new()
     {
@@ -111,13 +112,21 @@ class Client implements ISocket.IClientSocket extends BaseHandler
     public function connect(ip:String, port:Int)
     {
         socket = new sys.net.Socket();
-        socket.connect(new sys.net.Host(ip), port); // Todo : handle error
         socket.output.bigEndian = true;
         socket.input.bigEndian = true;
         socket.setBlocking(false);
-        this.connection = new Connection(this, socket);
 
-        onConnection();
+        try
+        {
+            socket.connect(new sys.net.Host(ip), port);
+            this.connected = true;
+            this.connection = new Connection(this, socket);
+            this.onConnection();
+        }
+        catch(error:Dynamic)
+        {
+            onConnectionError(error);
+        }
     }
 
     public function pump()
@@ -140,15 +149,8 @@ class Client implements ISocket.IClientSocket extends BaseHandler
             catch(ex:haxe.io.Error)
             {
                 if(ex == haxe.io.Error.Blocked) {}
-                
-                if(ex == haxe.io.Error.Overflow)
-                {
-                    trace("OVERFLOW");
-                }
-                if(ex == haxe.io.Error.OutsideBounds)
-                {
-                    trace("OUTSIDE BOUNDS");
-                }
+                if(ex == haxe.io.Error.Overflow) trace("OVERFLOW");
+                if(ex == haxe.io.Error.OutsideBounds) trace("OUTSIDE BOUNDS");
             }
         }
         connection.readDatas();
@@ -164,17 +166,34 @@ class Client implements ISocket.IClientSocket extends BaseHandler
         disconnectSocket(socket);
     }
 
+    function onConnectionError(error:Dynamic)
+    {
+        trace("Anette : Connection error > " + error);
+    }
+
     public override function disconnectSocket(_socket:sys.net.Socket)
     {
         _socket.shutdown(true, true);
         _socket.close();
+        connected = false;
+        this.onDisconnection();
     }
 
     public override function send(_socket:sys.net.Socket,
                                   bytes:haxe.io.Bytes,
                                   offset:Int, length:Int)
     {
-        _socket.output.writeBytes(bytes, offset, length);
+        try
+        {
+            _socket.output.writeBytes(bytes, offset, length);
+        }
+        catch(error:Dynamic)
+        {
+            trace("Anette : Send error " + error);
+            disconnect();
+        }
     }
+
+    public function get_connected() {return connected;}
 }
 #end

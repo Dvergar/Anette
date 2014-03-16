@@ -12,8 +12,8 @@ class Server implements ISocket extends BaseHandler
     var connections:Map<sys.net.Socket, Connection> = new Map();
     public var output:BytesOutput = new BytesOutput();
 
-	public function new(address:String, port:Int)
-	{
+    public function new(address:String, port:Int)
+    {
         super();
         serverSocket = new sys.net.Socket();
         serverSocket.bind(new sys.net.Host(address), port);
@@ -22,15 +22,15 @@ class Server implements ISocket extends BaseHandler
         serverSocket.listen(1);
         serverSocket.setBlocking(false);
         sockets = [serverSocket];
-	}
+    }
 
     public function connect(ip:String, port:Int)
     {
         throw("Anette : You can't connect as a server");
     }
 
-	public function pump()
-	{
+    public function pump()
+    {
         var inputSockets = sys.net.Socket.select(sockets, null, null, 0);
         for(socket in inputSockets.read)
         {
@@ -64,15 +64,10 @@ class Server implements ISocket extends BaseHandler
                 catch(ex:haxe.io.Error)
                 {
                     if(ex == haxe.io.Error.Blocked) {}
-                    
                     if(ex == haxe.io.Error.Overflow)
-                    {
                         trace("OVERFLOW");
-                    }
                     if(ex == haxe.io.Error.OutsideBounds)
-                    {
                         trace("OUTSIDE BOUNDS");
-                    }
                 }
             }
         }
@@ -80,7 +75,7 @@ class Server implements ISocket extends BaseHandler
         // INPUT MESSAGES
         for(conn in connections)
             conn.readDatas();
-	}
+    }
 
     public override function disconnectSocket(connectionSocket:sys.net.Socket)
     {

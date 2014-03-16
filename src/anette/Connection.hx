@@ -17,7 +17,7 @@ class Connection
     public function new(handler, socket)
     {
         this.socket = socket;
-    	this.handler = handler;
+        this.handler = handler;
         this.output.bigEndian = true;
     }
 
@@ -25,37 +25,37 @@ class Connection
     {
         if(buffer.length > 2)
         {
-	        var offset = 0;
+            var offset = 0;
 
-	        // GET BUFFER
-	        var bytes = buffer.getBytes();
+            // GET BUFFER
+            var bytes = buffer.getBytes();
 
-	        // PUSH BUFFER INTO BYTESINPUT FOR READING
-	        var input = new BytesInput(bytes);
-	        input.bigEndian = true;
+            // PUSH BUFFER INTO BYTESINPUT FOR READING
+            var input = new BytesInput(bytes);
+            input.bigEndian = true;
 
-	        // READ EACH MESSAGE
-	        while(input.length - input.position > 2)
-	        {	
-		        var msgLength = input.readInt16();
-		        if(input.length >= msgLength)
-		        {
-		            handler.onData(input);
-		            offset = 2 + msgLength;
-		        }
-		        else
-		        {
-		        	break;
-		        }
-	        }
+            // READ EACH MESSAGE
+            while(input.length - input.position > 2)
+            {    
+                var msgLength = input.readInt16();
+                if(input.length >= msgLength)
+                {
+                    handler.onData(input);
+                    offset = 2 + msgLength;
+                }
+                else
+                {
+                    break;
+                }
+            }
 
-	        // SLICE REMAINING BYTES AND PUSH BACK TO BUFFER
-	        buffer = new BytesBuffer();
-	        buffer.addBytes(bytes, offset, buffer.length);
+            // SLICE REMAINING BYTES AND PUSH BACK TO BUFFER
+            buffer = new BytesBuffer();
+            buffer.addBytes(bytes, offset, buffer.length);
 
             // REFRESH TIMER FOR DISCONNECTIONS
             lastSend = Time.now();
-	    }
+        }
 
         // DISCONNECT IF CONNECTION NOT ALIVE
         var timeSinceLastSend = Time.now() - lastSend;

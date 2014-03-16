@@ -12,6 +12,7 @@ class TestClient
         this.client.onData = onData;
         this.client.onConnection = onConnection;
         this.client.onDisconnection = onDisconnection;
+        this.client.timeout = 5;
         this.client.connect("192.168.1.4", 32000);
 
         #if flash
@@ -32,8 +33,11 @@ class TestClient
     function loop()
     #end
     {
-        client.pump();
-        client.flush();
+        if(client.connected)
+        {
+            client.pump();
+            client.flush();
+        }
     }
 
     function onData(input:haxe.io.BytesInput)

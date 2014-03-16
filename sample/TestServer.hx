@@ -3,23 +3,23 @@ import anette.Server;
 
 class TestServer
 {
-	var server:Server;
+    var server:Server;
 
-	public function new()
-	{
-		this.server = new Server("192.168.1.4", 32000);
+    public function new()
+    {
+        this.server = new Server("192.168.1.4", 32000);
         this.server.onData = onData;
         this.server.onConnection = onConnection;
         this.server.onDisconnection = onDisconnection;
-        this.server.timeout = 10;
+        this.server.timeout = 2;
 
-		while(true)
-		{
-			server.pump();
-			server.flush();
-			Sys.sleep(1/60);
-		}
-	}
+        while(true)
+        {
+            server.pump();
+            server.flush();
+            Sys.sleep(1/60);
+        }
+    }
 
     function onData(input:haxe.io.BytesInput)
     {
@@ -46,8 +46,8 @@ class TestServer
         trace("DISCONNECTION");
     }
 
-	static function main()
-	{
-		new TestServer();
-	}
+    static function main()
+    {
+        new TestServer();
+    }
 }
