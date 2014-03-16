@@ -9,19 +9,20 @@ class Connection
     public var input:BytesInput;
     public var output:BytesOutput = new BytesOutput();
     public var buffer:BytesBuffer = new BytesBuffer();
-    var socket:BaseSocket;
+    public var socket:BaseSocket;
+    var lastSend:Float;
 
     public function new(socket)
     {
     	this.socket = socket;
         this.output.bigEndian = true;
+        this.lastSend = -1;
     }
 
     public function readDatas()
     {
         if(buffer.length > 2)
         {
-	        trace("conn buffer length " + buffer.length);
 	        var offset = 0;
 
 	        // GET BUFFER
@@ -35,7 +36,6 @@ class Connection
 	        while(input.length - input.position > 2)
 	        {	
 		        var msgLength = input.readInt16();
-		        trace("msgLength " + msgLength);
 		        if(input.length >= msgLength)
 		        {
 		            socket.onData(input);
@@ -50,7 +50,20 @@ class Connection
 	        // SLICE REMAINING BYTES AND PUSH BACK TO BUFFER
 	        buffer = new BytesBuffer();
 	        buffer.addBytes(bytes, offset, buffer.length);
+
+            // REFRESH TIMER FOR DISCONNECTIONS
+            lastSend = Time.now();
 	    }
+
+        // DISCONNECT IF CONNECTION NOT ALIVE
+        var timeSinceLastSend = Time.now() - lastSend;
+        trace("socket timeout " + socket.timeout);
+        trace("timeSinceLastSend " + timeSinceLastSend);
+        if(socket.timeout != 0 && timeSinceLastSend > socket.timeout)
+        {
+            trace("pouf");
+            socket.disconnect();
+        }
     }
 
     public function flush()

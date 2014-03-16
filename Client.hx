@@ -5,10 +5,8 @@ import flash.events.Event;
 import flash.events.IOErrorEvent;
 import flash.events.SecurityErrorEvent;
 import flash.events.ProgressEvent;
-#end
 
 
-#if flash
 class Client implements ISocket extends BaseSocket
 {
     var socket:flash.net.Socket = new flash.net.Socket();
@@ -32,16 +30,28 @@ class Client implements ISocket extends BaseSocket
 
     function onConnect(event:Event)
     {
-        trace("CONNECTED");
         this.onConnection();
     }
 
     public function pump()
     {
-        while(socket.bytesAvailable > 0)
-        	connection.buffer.addByte(socket.readByte());
+        if(socket.connected)
+        {
+            try
+            {
+                while(socket.bytesAvailable > 0)
+                	connection.buffer.addByte(socket.readByte());
+                
+            }
+            catch(error:Dynamic)
+            {
+                trace("Anette : Error " + error);
 
-        connection.readDatas();
+                this.onDisconnection();
+            }
+
+            connection.readDatas();
+        }
     }
 
     public function flush()
@@ -57,17 +67,17 @@ class Client implements ISocket extends BaseSocket
 
     function onClose(event:Event)
     {
-        trace("DISCONNECTED");
+        this.onDisconnection();
     }
 
     function onError(event:Event)
     {
-        trace("SOCKET ERROR");
+        trace("Anette : FLASH SOCKET ERROR");
     }
 
     function onSecError(event:Event)
     {
-        trace("SOCKET SECURITY ERROR");
+        trace("Anette : FLASH SOCKET SECURITY ERROR");
     }
 }
 
@@ -109,9 +119,10 @@ class Client implements ISocket extends BaseSocket
             }
             catch(ex:haxe.io.Eof)
             {
-                trace("DISCONNECTED by EOF");
                 socket.shutdown(true, true);
                 socket.close();
+
+                this.onDisconnection();
             }
             catch(ex:haxe.io.Error)
             {
@@ -135,6 +146,8 @@ class Client implements ISocket extends BaseSocket
     {
         connection.flush();
     }
+
+    public override function disconnect() {};
 
     public override function send(bytes:haxe.io.Bytes, offset:Int, length:Int)
     {

@@ -25,16 +25,26 @@ class ClientSocket implements ISocket extends BaseSocket
     }
 
     public function connect(ip:String, port:Int){}
+    public override function disconnect()
+    {
+        socket.shutdown(true, true);
+        socket.close();
+
+        // CALLING PARENT TO NOTIFY DISCONNECTION :(
+        server.sockets.remove(socket);
+        server.connections.remove(socket);
+        server.onDisconnection();
+    }
     public function pump(){}
     public function flush(){}
 }
 
 
-class Server extends BaseSocket
+class Server implements ISocket extends BaseSocket
 {
     var serverSocket:sys.net.Socket;
-    var sockets:Array<sys.net.Socket>;
-    var connections:Map<sys.net.Socket, Connection> = new Map();
+    public var sockets:Array<sys.net.Socket>;
+    public var connections:Map<sys.net.Socket, Connection> = new Map();
     public var output:BytesOutput = new BytesOutput();
 
 	public function new(address:String, port:Int)
@@ -48,6 +58,11 @@ class Server extends BaseSocket
         serverSocket.setBlocking(false);
         sockets = [serverSocket];
 	}
+
+    public function connect(ip:String, port:Int)
+    {
+        throw("Anette : You can't connect as a server");
+    }
 
 	public function pump()
 	{
@@ -80,11 +95,8 @@ class Server extends BaseSocket
                 }
                 catch(ex:haxe.io.Eof)
                 {
-                    trace("DISCONNECTED by EOF");
-                    socket.shutdown(true, true);
-                    socket.close();
-                    sockets.remove(socket);
-                    connections.remove(socket);
+                    // Confusing, rename !
+                    connections.get(socket).socket.disconnect();
                 }
                 catch(ex:haxe.io.Error)
                 {

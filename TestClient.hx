@@ -1,6 +1,3 @@
-// import flash.events.Event;
-
-
 class TestClient
 {
     var client:Client;
@@ -11,6 +8,7 @@ class TestClient
         this.client = new Client();
         this.client.onData = onData;
         this.client.onConnection = onConnection;
+        this.client.onDisconnection = onDisconnection;
         this.client.connect("192.168.1.4", 32000);
 
         #if flash
@@ -37,14 +35,27 @@ class TestClient
 
     function onData(input:haxe.io.BytesInput)
     {
-        trace("msg " + input.readInt16());
+        trace("onData " + input.readInt16());
+
+        var msgLength = input.readInt8();
+        var msg = input.readString(msgLength);
+        trace("onData " + msg);
     }
 
     function onConnection()
     {
-        trace("CONNNECTED");
+        trace("CONNNECTION");
+        
         client.connection.output.writeInt16(42);
-        trace("length "+ client.connection.output.length);
+
+        var msg = "Hello Server";
+        client.connection.output.writeInt8(msg.length);
+        client.connection.output.writeString(msg);
+    }
+
+    function onDisconnection()
+    {
+        trace("DISCONNECTION");
     }
 
     static function main()
