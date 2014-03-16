@@ -1,3 +1,6 @@
+package anette;
+
+
 #if flash
 typedef Socket = flash.net.Socket;
 #elseif (cpp||neko||java)

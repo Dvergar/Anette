@@ -1,3 +1,6 @@
+package anette;
+
+
 #if flash
 class Time
 {

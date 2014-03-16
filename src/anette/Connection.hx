@@ -1,3 +1,5 @@
+package anette;
+
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;

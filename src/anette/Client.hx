@@ -1,3 +1,5 @@
+package anette;
+
 import haxe.io.BytesInput;
 
 #if flash

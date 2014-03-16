@@ -1,4 +1,4 @@
-import Server;
+import anette.Server;
 
 
 class TestServer

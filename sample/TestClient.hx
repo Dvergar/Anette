@@ -1,3 +1,6 @@
+import anette.Client;
+
+
 class TestClient
 {
     var client:Client;

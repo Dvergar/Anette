@@ -1,4 +1,5 @@
 -main TestClient.hx
 -debug
+-lib anette
 -java "bin"
 -cmd "java -jar bin\TestClient-Debug.jar"

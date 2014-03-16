@@ -1,3 +1,6 @@
+package anette;
+
+
 interface ISocket
 {
 	public function connect(ip:String, port:Int):Void;

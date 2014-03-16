@@ -1,3 +1,6 @@
+package anette;
+
+
 class BaseHandler
 {
 	public var onConnection:Void->Void;

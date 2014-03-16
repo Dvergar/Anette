@@ -1,5 +1,5 @@
 -main TestClient.hx
 -debug
--D client
+-lib anette
 -neko "_client.n"
 -cmd "neko _client.n"
