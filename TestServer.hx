@@ -11,7 +11,7 @@ class TestServer
         this.server.onData = onData;
         this.server.onConnection = onConnection;
         this.server.onDisconnection = onDisconnection;
-        this.server.timeout = 2;
+        this.server.timeout = 10;
 
 		while(true)
 		{

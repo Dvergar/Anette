@@ -5,18 +5,18 @@ import haxe.io.BytesBuffer;
 
 class Connection
 {
-    public var id:Int;
     public var input:BytesInput;
     public var output:BytesOutput = new BytesOutput();
     public var buffer:BytesBuffer = new BytesBuffer();
-    public var socket:BaseSocket;
-    var lastSend:Float;
+    var handler:BaseHandler;  // will call onData, timeout & send methods
+    var socket:Socket;  // cached only to pass it to handler.send, not used
+    var lastSend:Float = Time.now();  // used to detect inactivities
 
-    public function new(socket)
+    public function new(handler, socket)
     {
-    	this.socket = socket;
+        this.socket = socket;
+    	this.handler = handler;
         this.output.bigEndian = true;
-        this.lastSend = -1;
     }
 
     public function readDatas()
@@ -38,7 +38,7 @@ class Connection
 		        var msgLength = input.readInt16();
 		        if(input.length >= msgLength)
 		        {
-		            socket.onData(input);
+		            handler.onData(input);
 		            offset = 2 + msgLength;
 		        }
 		        else
@@ -57,12 +57,9 @@ class Connection
 
         // DISCONNECT IF CONNECTION NOT ALIVE
         var timeSinceLastSend = Time.now() - lastSend;
-        trace("socket timeout " + socket.timeout);
-        trace("timeSinceLastSend " + timeSinceLastSend);
-        if(socket.timeout != 0 && timeSinceLastSend > socket.timeout)
+        if(handler.timeout != 0 && timeSinceLastSend > handler.timeout)
         {
-            trace("pouf");
-            socket.disconnect();
+            handler.disconnectSocket(socket);
         }
     }
 
@@ -84,7 +81,7 @@ class Connection
             // Length cached because getBytes() kill the object :(
             var msgOutputLength = msgOutput.length;
 
-            socket.send(msgOutput.getBytes(), 0, msgOutputLength);
+            handler.send(socket, msgOutput.getBytes(), 0, msgOutputLength);
 
             // RESET OUTPUT
             output = new BytesOutput();

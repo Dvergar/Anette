@@ -3,48 +3,11 @@ import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;
 
 
-// USED BY CONNECTION
-class ClientSocket implements ISocket extends BaseSocket
-{
-    var socket:sys.net.Socket;
-    var server:Server;
-
-    public function new(server, socket)
-    {
-        super();
-        this.server = server;
-        this.socket = socket;
-
-        // CALLED BY CONNECTION
-        this.onData = server.onData;
-    }
-
-    public override function send(bytes:haxe.io.Bytes, offset:Int, length:Int)
-    {
-        socket.output.writeBytes(bytes, offset, length);
-    }
-
-    public function connect(ip:String, port:Int){}
-    public override function disconnect()
-    {
-        socket.shutdown(true, true);
-        socket.close();
-
-        // CALLING PARENT TO NOTIFY DISCONNECTION :(
-        server.sockets.remove(socket);
-        server.connections.remove(socket);
-        server.onDisconnection();
-    }
-    public function pump(){}
-    public function flush(){}
-}
-
-
-class Server implements ISocket extends BaseSocket
+class Server implements ISocket extends BaseHandler
 {
     var serverSocket:sys.net.Socket;
-    public var sockets:Array<sys.net.Socket>;
-    public var connections:Map<sys.net.Socket, Connection> = new Map();
+    var sockets:Array<sys.net.Socket>;
+    var connections:Map<sys.net.Socket, Connection> = new Map();
     public var output:BytesOutput = new BytesOutput();
 
 	public function new(address:String, port:Int)
@@ -77,8 +40,7 @@ class Server implements ISocket extends BaseSocket
                 newSocket.input.bigEndian = true;
                 sockets.push(newSocket);
 
-                var clientSocket = new ClientSocket(this, newSocket);
-                var connection = new Connection(clientSocket);
+                var connection = new Connection(this, newSocket);
                 connections.set(newSocket, connection);
 
                 this.onConnection();
@@ -95,8 +57,7 @@ class Server implements ISocket extends BaseSocket
                 }
                 catch(ex:haxe.io.Eof)
                 {
-                    // Confusing, rename !
-                    connections.get(socket).socket.disconnect();
+                    disconnectSocket(socket);
                 }
                 catch(ex:haxe.io.Error)
                 {
@@ -116,10 +77,27 @@ class Server implements ISocket extends BaseSocket
 
         // INPUT MESSAGES
         for(conn in connections)
-        {
             conn.readDatas();
-        }
 	}
+
+    public override function disconnectSocket(connectionSocket:sys.net.Socket)
+    {
+        connectionSocket.shutdown(true, true);
+        connectionSocket.close();
+
+        // CLEAN UP
+        sockets.remove(connectionSocket);
+        connections.remove(connectionSocket);
+        onDisconnection();
+    }
+
+    // CALLED BY CONNECTION
+    public override function send(connectionSocket:sys.net.Socket,
+                                  bytes:haxe.io.Bytes,
+                                  offset:Int, length:Int)
+    {
+        connectionSocket.output.writeBytes(bytes, offset, length);
+    }
 
     public function flush()
     {

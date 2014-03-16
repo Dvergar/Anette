@@ -7,7 +7,7 @@ import flash.events.SecurityErrorEvent;
 import flash.events.ProgressEvent;
 
 
-class Client implements ISocket extends BaseSocket
+class Client implements ISocket.IClientSocket extends BaseHandler
 {
     var socket:flash.net.Socket = new flash.net.Socket();
     public var connection:Connection;
@@ -15,7 +15,7 @@ class Client implements ISocket extends BaseSocket
 	public function new()
 	{
         super();
-		this.connection = new Connection(this);
+		this.connection = new Connection(this, socket);
 	}
 
 	public function connect(ip:String, port:Int)
@@ -35,6 +35,7 @@ class Client implements ISocket extends BaseSocket
 
     public function pump()
     {
+        // Todo : remove, let the user handle this
         if(socket.connected)
         {
             try
@@ -46,8 +47,8 @@ class Client implements ISocket extends BaseSocket
             catch(error:Dynamic)
             {
                 trace("Anette : Error " + error);
-
-                this.onDisconnection();
+                disconnectSocket(socket);
+                
             }
 
             connection.readDatas();
@@ -59,10 +60,22 @@ class Client implements ISocket extends BaseSocket
         connection.flush();
     }
 
-    public override function send(bytes:haxe.io.Bytes, offset:Int, length:Int)
+    public function disconnect()
     {
-        socket.writeBytes(bytes.getData(), offset, length);
-        socket.flush();
+        disconnectSocket(socket);
+    }
+
+    public override function disconnectSocket(socket:flash.net.Socket)
+    {
+        this.onDisconnection();
+    }
+
+    public override function send(connectionSocket:flash.net.Socket,
+                                  bytes:haxe.io.Bytes,
+                                  offset:Int, length:Int)
+    {
+        connectionSocket.writeBytes(bytes.getData(), offset, length);
+        connectionSocket.flush();
     }
 
     function onClose(event:Event)
@@ -83,30 +96,31 @@ class Client implements ISocket extends BaseSocket
 
 
 #elseif (cpp||neko||java)
-class Client implements ISocket extends BaseSocket
+class Client implements ISocket.IClientSocket extends BaseHandler
 {
-    var socket:sys.net.Socket = new sys.net.Socket();
+    var socket:sys.net.Socket;
     public var connection:Connection;
 
     public function new()
     {
         super();
-        this.connection = new Connection(this);
     }
 
     public function connect(ip:String, port:Int)
     {
         socket = new sys.net.Socket();
-        socket.connect(new sys.net.Host(ip), port);
+        socket.connect(new sys.net.Host(ip), port); // Todo : handle error
         socket.output.bigEndian = true;
         socket.input.bigEndian = true;
         socket.setBlocking(false);
+        this.connection = new Connection(this, socket);
 
         onConnection();
     }
 
     public function pump()
     {
+        // Todo : handle "Uncaught exception - std@socket_select"
         var sockets = sys.net.Socket.select([this.socket], null, null, 0);
         if(sockets.read.length > 0)
         {
@@ -119,10 +133,7 @@ class Client implements ISocket extends BaseSocket
             }
             catch(ex:haxe.io.Eof)
             {
-                socket.shutdown(true, true);
-                socket.close();
-
-                this.onDisconnection();
+                disconnectSocket(socket);
             }
             catch(ex:haxe.io.Error)
             {
@@ -138,7 +149,6 @@ class Client implements ISocket extends BaseSocket
                 }
             }
         }
-
         connection.readDatas();
     }
 
@@ -147,11 +157,22 @@ class Client implements ISocket extends BaseSocket
         connection.flush();
     }
 
-    public override function disconnect() {};
-
-    public override function send(bytes:haxe.io.Bytes, offset:Int, length:Int)
+    public function disconnect()
     {
-        socket.output.writeBytes(bytes, offset, length);
+        disconnectSocket(socket);
+    }
+
+    public override function disconnectSocket(_socket:sys.net.Socket)
+    {
+        _socket.shutdown(true, true);
+        _socket.close();
+    }
+
+    public override function send(_socket:sys.net.Socket,
+                                  bytes:haxe.io.Bytes,
+                                  offset:Int, length:Int)
+    {
+        _socket.output.writeBytes(bytes, offset, length);
     }
 }
 #end

@@ -1,9 +1,9 @@
-class BaseSocket
+class BaseHandler
 {
-	@:isVar public var onConnection(get, set):Void->Void;
-	@:isVar public var onDisconnection(get, set):Void->Void;
-	@:isVar public var onData(get, set):haxe.io.BytesInput->Void;
-	@:isVar public var timeout(get, set):Float = 0;
+	public var onConnection:Void->Void;
+	public var onDisconnection:Void->Void;
+	public var onData:haxe.io.BytesInput->Void;
+	public var timeout:Float = 0;
 
 	public function new()
 	{
@@ -12,12 +12,14 @@ class BaseSocket
 		onData = onDataDefault;
 	}
 
-	public function send(bytes:haxe.io.Bytes, offset:Int, length:Int)
+	public function send(socket:Socket,
+						 bytes:haxe.io.Bytes,
+						 offset:Int, length:Int)
 	{
 		throw("Anette : send method undefined");
 	}
 
-	public function disconnect()
+	public function disconnectSocket(socket:Socket)
 	{
 		throw("Anette : disconnect method undefined");
 	}
