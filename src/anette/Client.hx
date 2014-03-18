@@ -1,6 +1,5 @@
 package anette;
 
-import haxe.io.BytesInput;
 
 #if flash
 import flash.events.Event;
@@ -52,7 +51,6 @@ class Client implements ISocket.IClientSocket extends BaseHandler
         }
 
         connection.readDatas();
-        // }
     }
 
     public function flush()
@@ -100,7 +98,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 #elseif (cpp||neko||java)
 class Client implements ISocket.IClientSocket extends BaseHandler
 {
-    @:isVar var connected(get, null):Bool;
+    @:isVar public var connected(get, null):Bool;
     public var connection:Connection;
     var socket:sys.net.Socket;
 
@@ -112,20 +110,25 @@ class Client implements ISocket.IClientSocket extends BaseHandler
     public function connect(ip:String, port:Int)
     {
         socket = new sys.net.Socket();
-        socket.output.bigEndian = true;
-        socket.input.bigEndian = true;
-        socket.setBlocking(false);
 
         try
         {
             socket.connect(new sys.net.Host(ip), port);
             this.connected = true;
-            this.connection = new Connection(this, socket);
-            this.onConnection();
         }
         catch(error:Dynamic)
         {
             onConnectionError(error);
+            this.connected = false;
+        }
+
+        if(connected)
+        {
+            socket.output.bigEndian = true;
+            socket.input.bigEndian = true;
+            socket.setBlocking(false);
+            this.connection = new Connection(this, socket);
+            this.onConnection();
         }
     }
 
