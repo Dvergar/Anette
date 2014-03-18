@@ -77,7 +77,8 @@ class Server implements ISocket extends BaseHandler
             conn.readDatas();
     }
 
-    public override function disconnectSocket(connectionSocket:sys.net.Socket)
+    @:allow(anette.Connection)
+    override function disconnectSocket(connectionSocket:sys.net.Socket)
     {
         connectionSocket.shutdown(true, true);
         connectionSocket.close();
@@ -89,7 +90,8 @@ class Server implements ISocket extends BaseHandler
     }
 
     // CALLED BY CONNECTION
-    public override function send(connectionSocket:sys.net.Socket,
+    @:allow(anette.Connection)
+    override function send(connectionSocket:sys.net.Socket,
                                   bytes:haxe.io.Bytes,
                                   offset:Int, length:Int)
     {

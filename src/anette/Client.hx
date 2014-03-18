@@ -63,12 +63,14 @@ class Client implements ISocket.IClientSocket extends BaseHandler
         disconnectSocket(socket);
     }
 
-    public override function disconnectSocket(socket:flash.net.Socket)
+    @:allow(anette.Connection)
+    override function disconnectSocket(socket:flash.net.Socket)
     {
         this.onDisconnection();
     }
 
-    public override function send(connectionSocket:flash.net.Socket,
+    @:allow(anette.Connection)
+    override function send(connectionSocket:flash.net.Socket,
                                   bytes:haxe.io.Bytes,
                                   offset:Int, length:Int)
     {
@@ -174,7 +176,8 @@ class Client implements ISocket.IClientSocket extends BaseHandler
         trace("Anette : Connection error > " + error);
     }
 
-    public override function disconnectSocket(_socket:sys.net.Socket)
+    @:allow(anette.Connection)
+    override function disconnectSocket(_socket:sys.net.Socket)
     {
         _socket.shutdown(true, true);
         _socket.close();
@@ -182,7 +185,8 @@ class Client implements ISocket.IClientSocket extends BaseHandler
         this.onDisconnection();
     }
 
-    public override function send(_socket:sys.net.Socket,
+    @:allow(anette.Connection)
+    override function send(_socket:sys.net.Socket,
                                   bytes:haxe.io.Bytes,
                                   offset:Int, length:Int)
     {
