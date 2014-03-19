@@ -43,7 +43,7 @@ example : `server.onData = function(input:haxe.io.BytesInput) { input.readString
 
 **server.timeout**
 
-Property of type `Float`, defines the time of inactivity before the connection is dropped.
+Property of type `Float`, defines the time of inactivity in seconds before the connection is dropped.
 
 
 ##Client
@@ -90,7 +90,7 @@ example : `client.onData = function(input:haxe.io.BytesInput) { input.readString
 
 **client.timeout**
 
-Property of type `Float`, defines the time of inactivity before the connection is dropped.
+Property of type `Float`, defines the time of inactivity in seconds before the connection is dropped.
 
 
 ##Server Example
