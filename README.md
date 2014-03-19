@@ -1,11 +1,12 @@
 Anette
 ======
 
-Anette is a haxe network library with a simple API :)
+*Anette is a haxe network library with a simple API :)*
 
-###Todo
-* Websockets
-* UDP Sockets
+* Supports C++ and Neko server-side.
+* Supports C++, Neko and Flash client-side.
+
+Node backend, websockets & UDP sockets will come at some point.
 
 ##Server
 
