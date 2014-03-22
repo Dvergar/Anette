@@ -2,5 +2,6 @@
 -debug
 -lib anette
 -lib nodejs
+# -D dump=pretty
 -js "testServer.js"
 -cmd "node testServer.js"

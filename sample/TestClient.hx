@@ -29,7 +29,7 @@ class TestClient
 
     #if flash
     function loop(event:flash.events.Event)
-    #elseif (cpp||neko||java)
+    #elseif (cpp||neko)
     function loop()
     #end
     {

@@ -1,5 +1,6 @@
 -main TestServer.hx
 -debug
 -lib anette
+# -D dump=pretty
 -cpp "bin\cpp"
 -cmd "bin\cpp\TestServer-debug.exe"

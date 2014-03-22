@@ -1,13 +1,11 @@
 package anette;
 
 import haxe.io.BytesInput;
-
-
-#if (cpp||neko)
 import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;
 
 
+#if (cpp||neko)
 class Server implements ISocket extends BaseHandler
 {
     var serverSocket:sys.net.Socket;
@@ -125,7 +123,7 @@ class Server implements ISocket extends BaseHandler
 }
 
 
-#elseif js
+#elseif nodejs
 import js.Node.NodeNetSocket;
 import js.Node.NodeBuffer;
 
@@ -133,20 +131,20 @@ import js.Node.NodeBuffer;
 class Server implements ISocket extends BaseHandler
 {
     var serverSocket:NodeNetSocket;
-    // var sockets:Array<NodeNetSocket>;
     var connections:Map<NodeNetSocket, Connection> = new Map();
-    public var output:BytesOutput = new anette.NodeBytesOutput();
+    public var output:BytesOutput = new BytesOutput();
 
     public function new(address:String, port:Int)
     {
         super();
         var nodeNet = js.Node.require('net');
-        var server = nodeNet.createServer(function (newSocket)
+        var server = nodeNet.createServer(function(newSocket)
         {
             var connection = new Connection(this, newSocket);
             connections.set(newSocket, connection); 
 
-            newSocket.on("data", function(buffer) {
+            newSocket.on("data", function(buffer)
+            {
                 var conn = connections.get(newSocket);
                 var bufferLength:Int = cast buffer.length;
                 for(i in 0...bufferLength)
@@ -154,6 +152,8 @@ class Server implements ISocket extends BaseHandler
             });
 
             this.onConnection();
+            newSocket.on("error", function() {trace("error");});
+            newSocket.on("close", function() {disconnectSocket(newSocket);});
 
         });
         server.listen(port, address);
@@ -177,12 +177,11 @@ class Server implements ISocket extends BaseHandler
         connectionSocket.end();
         connectionSocket.destroy();
 
-        // // CLEAN UP
+        // CLEAN UP
         connections.remove(connectionSocket);
         onDisconnection();
     }
 
-    // CALLED BY CONNECTION
     @:allow(anette.Connection)
     override function send(connectionSocket:NodeNetSocket,
                                   bytes:haxe.io.Bytes,

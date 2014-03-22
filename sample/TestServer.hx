@@ -11,18 +11,14 @@ class TestServer
         this.server.onData = onData;
         this.server.onConnection = onConnection;
         this.server.onDisconnection = onDisconnection;
-        this.server.timeout = 2;
+        this.server.timeout = 10;
 
+        // DIFFERENT TARGETS, DIFFERENT LOOPS
         #if js
-            var timer = new haxe.Timer(Std.int(1000 / 60));
-            timer.run = loop;
+        var timer = new haxe.Timer(Std.int(1000 / 60));
+        timer.run = loop;
         #else
-            while(true)
-            {
-                server.pump();
-                server.flush();
-                Sys.sleep(1/60);
-            }
+        while(true) {loop(); Sys.sleep(1/60);}
         #end
     }
 

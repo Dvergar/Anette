@@ -63,7 +63,7 @@ Sends datas from the buffer into the internet tubes, generally used in a loop.
 
 **client.disconnect()**
 
-Disconnects the connection.
+Drops the connection.
 
 **client.connected**
 
@@ -110,14 +110,15 @@ class TestServer
         this.server.onData = onData;
         this.server.onConnection = onConnection;
         this.server.onDisconnection = onDisconnection;
-        this.server.timeout = 2;
 
-        while(true)
-        {
-            server.pump();
-            server.flush();
-            Sys.sleep(1/60);
-        }
+        while(true) loop();
+    }
+
+    function loop()
+    {
+        server.pump();
+        server.flush();
+        Sys.sleep(1/60);
     }
 
     function onConnection()
@@ -170,7 +171,6 @@ class TestClient
         this.client.onData = onData;
         this.client.onConnection = onConnection;
         this.client.onDisconnection = onDisconnection;
-        this.client.timeout = 5;
         this.client.connect("127.0.0.1", 32000);
 
         flash.Lib.current.stage.addEventListener(flash.events.Event.ENTER_FRAME,
