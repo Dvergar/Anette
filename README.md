@@ -98,7 +98,7 @@ Property of type `Float`, defines the time of inactivity in seconds before the c
 
 ##Server Example
 
-```
+```Haxe
 import anette.Server;
 
 
@@ -158,7 +158,7 @@ class TestServer
 
 ##Client Example (flash)
 
-```
+```Haxe
 import anette.Client;
 
 
