@@ -1,0 +1,6 @@
+-main TestServer.hx
+-debug
+-lib anette
+-lib nodejs
+-js "testServer.js"
+-cmd "node testServer.js"

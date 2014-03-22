@@ -1,8 +1,13 @@
 package anette;
 
 import haxe.io.BytesInput;
+#if js
+import anette.BytesBuffer;
+import anette.BytesOutput;
+#else
 import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;
+#end
 
 
 class Connection
@@ -67,11 +72,13 @@ class Connection
 
     public function flush()
     {
+        // trace("connflush");
         // SEND EACH MESSAGE
         if(output.length > 0)
         {
             // GENERATE MESSAGE WITH LENGTH PREFIX
             var outputLength = output.length;
+            // trace("outputLength " + outputLength);
 
             var msgOutput = new BytesOutput(); // Todo getBo static method
             msgOutput.bigEndian = true;        // with bigEndian set

@@ -13,12 +13,23 @@ class TestServer
         this.server.onDisconnection = onDisconnection;
         this.server.timeout = 2;
 
-        while(true)
-        {
-            server.pump();
-            server.flush();
-            Sys.sleep(1/60);
-        }
+        #if js
+            var timer = new haxe.Timer(Std.int(1000 / 60));
+            timer.run = loop;
+        #else
+            while(true)
+            {
+                server.pump();
+                server.flush();
+                Sys.sleep(1/60);
+            }
+        #end
+    }
+
+    function loop()
+    {
+        server.pump();
+        server.flush();
     }
 
     function onData(input:haxe.io.BytesInput)

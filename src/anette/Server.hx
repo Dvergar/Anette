@@ -1,6 +1,9 @@
 package anette;
 
 import haxe.io.BytesInput;
+
+
+#if (cpp||neko)
 import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;
 
@@ -120,3 +123,94 @@ class Server implements ISocket extends BaseHandler
         this.output.bigEndian = true;
     }
 }
+
+
+#elseif js
+import js.Node.NodeNetSocket;
+import js.Node.NodeBuffer;
+
+
+class Server implements ISocket extends BaseHandler
+{
+    var serverSocket:NodeNetSocket;
+    // var sockets:Array<NodeNetSocket>;
+    var connections:Map<NodeNetSocket, Connection> = new Map();
+    public var output:BytesOutput = new anette.NodeBytesOutput();
+
+    public function new(address:String, port:Int)
+    {
+        super();
+        var nodeNet = js.Node.require('net');
+        var server = nodeNet.createServer(function (newSocket)
+        {
+            var connection = new Connection(this, newSocket);
+            connections.set(newSocket, connection); 
+
+            newSocket.on("data", function(buffer) {
+                var conn = connections.get(newSocket);
+                var bufferLength:Int = cast buffer.length;
+                for(i in 0...bufferLength)
+                    conn.buffer.addByte(buffer.readInt8(i));
+            });
+
+            this.onConnection();
+
+        });
+        server.listen(port, address);
+    }
+
+    public function connect(ip:String, port:Int)
+    {
+        throw("Anette : You can't connect as a server");
+    }
+
+    public function pump()
+    {
+        // INPUT MESSAGES
+        for(conn in connections)
+            conn.readDatas();
+    }
+
+    @:allow(anette.Connection)
+    override function disconnectSocket(connectionSocket:NodeNetSocket)
+    {
+        connectionSocket.end();
+        connectionSocket.destroy();
+
+        // // CLEAN UP
+        connections.remove(connectionSocket);
+        onDisconnection();
+    }
+
+    // CALLED BY CONNECTION
+    @:allow(anette.Connection)
+    override function send(connectionSocket:NodeNetSocket,
+                                  bytes:haxe.io.Bytes,
+                                  offset:Int, length:Int)
+    {
+        connectionSocket.write(new NodeBuffer(bytes.getData()));
+    }
+
+    public function flush()
+    {
+        // GET BROADCAST BUFFER
+        var broadcastLength = this.output.length;
+        var broadcastBytes = this.output.getBytes();
+
+        for(socket in connections.keys())
+        {
+            var conn = connections.get(socket);
+
+            // PUSH BROADCAST BUFFER TO EACH CONNECTION
+            if(broadcastLength > 0)
+                conn.output.writeBytes(broadcastBytes, 0, broadcastLength);
+
+            conn.flush();
+        }
+
+        // RESET BROADCAST BUFFER
+        this.output = new BytesOutput();
+        this.output.bigEndian = true;
+    }
+}
+#end

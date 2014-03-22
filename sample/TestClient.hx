@@ -17,7 +17,7 @@ class TestClient
 
         #if flash
         flash.Lib.current.stage.addEventListener(flash.events.Event.ENTER_FRAME,
-                                                loop);
+                                                 loop);
         #elseif (cpp||neko||java)
         while(true)
         {
@@ -28,7 +28,7 @@ class TestClient
     }
 
     #if flash
-    function loop(ev:flash.events.Event)
+    function loop(event:flash.events.Event)
     #elseif (cpp||neko||java)
     function loop()
     #end
