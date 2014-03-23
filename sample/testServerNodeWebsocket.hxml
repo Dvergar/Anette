@@ -3,5 +3,6 @@
 -lib anette
 -lib nodejs
 # -D dump=pretty
+-D websocket
 -js "_testServer.js"
 -cmd "node _testServer.js"

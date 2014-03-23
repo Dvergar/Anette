@@ -7,7 +7,6 @@ import haxe.io.BytesBuffer;
 
 class Connection
 {
-    public var input:BytesInput;
     public var output:BytesOutput = new BytesOutput();
     public var buffer:BytesBuffer = new BytesBuffer();
     var handler:BaseHandler;  // will call onData, timeout & send methods
@@ -23,6 +22,7 @@ class Connection
 
     public function readDatas()
     {
+
         if(buffer.length > 2)
         {
             var offset = 0;

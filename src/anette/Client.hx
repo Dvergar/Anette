@@ -97,7 +97,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 }
 
 
-#elseif (cpp||neko||java)
+#elseif (cpp||neko)
 class Client implements ISocket.IClientSocket extends BaseHandler
 {
     @:isVar public var connected(get, null):Bool;
@@ -199,6 +199,82 @@ class Client implements ISocket.IClientSocket extends BaseHandler
             trace("Anette : Send error " + error);
             disconnect();
         }
+    }
+
+    public function get_connected() {return connected;}
+}
+
+#elseif js
+class Client implements ISocket.IClientSocket extends BaseHandler
+{
+    @:isVar public var connected(get, null):Bool;
+    public var connection:Connection;
+    var socket:js.html.WebSocket;
+
+    public function new()
+    {
+        super();
+    }
+
+    public function connect(ip:String, port:Int)
+    {
+        socket = new js.html.WebSocket("ws://192.168.1.4:32000");
+        socket.binaryType = "arraybuffer";
+        socket.onopen = function(event)
+        {  
+            this.connection = new Connection(this, socket);
+            this.connected = true;
+            this.onConnection();
+        }
+
+        socket.onmessage = function(event:Dynamic)
+        {
+            var ab:js.html.ArrayBuffer = event.data;
+            var d = new js.html.DataView(event.data);
+
+            for(i in 0...ab.byteLength)
+                connection.buffer.addByte(d.getUint8(i));
+        }
+
+        socket.onclose = function(event) {disconnectSocket(socket);};
+        socket.onerror = function(event) {trace("error");};
+    }
+
+    public function pump()
+    {
+        connection.readDatas();
+    }
+
+    public function flush()
+    {
+        connection.flush();
+    }
+
+    public function disconnect()
+    {
+        disconnectSocket(socket);
+    }
+
+    function onConnectionError(error:Dynamic)
+    {
+        trace("Anette : Connection error > " + error);
+    }
+
+    @:allow(anette.Connection)
+    override function disconnectSocket(_socket:js.html.WebSocket)
+    {
+        connected = false;
+        this.onDisconnection();
+    }
+
+    @:allow(anette.Connection)
+    // TODO : remove offset/length arguments
+    override function send(_socket:js.html.WebSocket,
+                                  bytes:haxe.io.Bytes,
+                                  offset:Int, length:Int)
+    {
+        var ba = new js.html.Int8Array(bytes.getData());
+        _socket.send(ba);
     }
 
     public function get_connected() {return connected;}

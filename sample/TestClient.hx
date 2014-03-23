@@ -18,18 +18,17 @@ class TestClient
         #if flash
         flash.Lib.current.stage.addEventListener(flash.events.Event.ENTER_FRAME,
                                                  loop);
-        #elseif (cpp||neko||java)
-        while(true)
-        {
-            loop();
-            Sys.sleep(1/60);
-        }
+        #elseif (cpp||neko)
+        while(true) {loop(); Sys.sleep(1 / 60);}
+        #elseif js
+        var timer = new haxe.Timer(Std.int(1000 / 60));
+        timer.run = loop;
         #end
     }
 
     #if flash
     function loop(event:flash.events.Event)
-    #elseif (cpp||neko)
+    #else
     function loop()
     #end
     {

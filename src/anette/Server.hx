@@ -123,7 +123,7 @@ class Server implements ISocket extends BaseHandler
 }
 
 
-#elseif nodejs
+#elseif (nodejs && !websocket)
 import js.Node.NodeNetSocket;
 import js.Node.NodeBuffer;
 
@@ -188,6 +188,94 @@ class Server implements ISocket extends BaseHandler
                                   offset:Int, length:Int)
     {
         connectionSocket.write(new NodeBuffer(bytes.getData()));
+    }
+
+    public function flush()
+    {
+        // GET BROADCAST BUFFER
+        var broadcastLength = this.output.length;
+        var broadcastBytes = this.output.getBytes();
+
+        for(socket in connections.keys())
+        {
+            var conn = connections.get(socket);
+
+            // PUSH BROADCAST BUFFER TO EACH CONNECTION
+            if(broadcastLength > 0)
+                conn.output.writeBytes(broadcastBytes, 0, broadcastLength);
+
+            conn.flush();
+        }
+
+        // RESET BROADCAST BUFFER
+        this.output = new BytesOutput();
+        this.output.bigEndian = true;
+    }
+}
+
+#elseif (nodejs && websocket)
+import anette.Socket;
+
+
+class Server implements ISocket extends BaseHandler
+{
+    var serverSocket:WebSocket;
+    var connections:Map<WebSocket, Connection> = new Map();
+    public var output:BytesOutput = new BytesOutput();
+
+    public function new(address:String, port:Int)
+    {
+        super();
+        var wss = new WebSocketServer({port: 32000, host:"192.168.1.4"});
+
+        wss.on('connection', function(newSocket:WebSocket) {
+            var connection = new Connection(this, newSocket);
+            connections.set(newSocket, connection); 
+
+            newSocket.on('message', function(message)
+            {
+                var conn = connections.get(newSocket);
+                var buffer = new js.Node.NodeBuffer(message);
+                var bufferLength:Int = cast buffer.length;
+
+                // Refactor if possible
+                for(i in 0...bufferLength)
+                    conn.buffer.addByte(buffer.readInt8(i));
+            });
+
+            newSocket.on("close", function(o) {disconnectSocket(newSocket);});
+            newSocket.on("error", function(o) {trace("error");});
+
+            this.onConnection();
+        });
+    }
+
+    public function connect(ip:String, port:Int)
+    {
+        throw("Anette : You can't connect as a server");
+    }
+
+    public function pump()
+    {
+        // INPUT MESSAGES
+        for(conn in connections)
+            conn.readDatas();
+    }
+
+    @:allow(anette.Connection)
+    override function disconnectSocket(connectionSocket:WebSocket)
+    {
+        // CLEAN UP
+        connections.remove(connectionSocket);
+        onDisconnection();
+    }
+
+    @:allow(anette.Connection)
+    override function send(connectionSocket:WebSocket,
+                                  bytes:haxe.io.Bytes,
+                                  offset:Int, length:Int)
+    {
+        connectionSocket.send(bytes.getData(), {binary: true, mask: false});
     }
 
     public function flush()

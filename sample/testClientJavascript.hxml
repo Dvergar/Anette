@@ -1,0 +1,4 @@
+-main TestClient.hx
+-debug
+-lib anette
+-js "_testClient.js"
