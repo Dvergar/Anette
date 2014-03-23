@@ -3,10 +3,12 @@ Anette
 
 *Anette is a haxe network library with a simple API :)*
 
-* Supports C++ and Neko server-side.
+* Supports C++, Neko and Javascript (Node) server-side.
 * Supports C++, Neko and Flash client-side.
 
-Node backend, websockets & UDP sockets will come at some point.
+Websockets & UDP sockets will come at some point.
+
+**Note :** *Node backend depends on [nodejs library](https://github.com/dionjwa/nodejs-std), but since it's overriding some of the haxe library classes it only works if you remove or rename the `haxe` folder in `HaxeToolkit\haxe\lib\nodejs\x,x,x\` hoping that it doesn't break your application.*
 
 ##Server
 
@@ -96,7 +98,7 @@ Property of type `Float`, defines the time of inactivity in seconds before the c
 
 ##Server Example
 
-```
+```Haxe
 import anette.Server;
 
 
@@ -156,7 +158,7 @@ class TestServer
 
 ##Client Example (flash)
 
-```
+```Haxe
 import anette.Client;
 
 
