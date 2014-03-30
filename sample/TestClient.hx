@@ -39,16 +39,16 @@ class TestClient
         }
     }
 
-    function onData(input:haxe.io.BytesInput)
+    function onData(connection:anette.Connection)
     {
-        trace("onData " + input.readInt16());
+        trace("onData " + connection.input.readInt16());
 
-        var msgLength = input.readInt8();
-        var msg = input.readString(msgLength);
+        var msgLength = connection.input.readInt8();
+        var msg = connection.input.readString(msgLength);
         trace("onData " + msg);
     }
 
-    function onConnection()
+    function onConnection(connection:anette.Connection)
     {
         trace("CONNNECTION");
         
@@ -59,7 +59,7 @@ class TestClient
         client.connection.output.writeString(msg);
     }
 
-    function onDisconnection()
+    function onDisconnection(connection:anette.Connection)
     {
         trace("DISCONNECTION");
     }

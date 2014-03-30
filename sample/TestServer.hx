@@ -1,4 +1,5 @@
 import anette.Server;
+import anette.Connection;
 
 
 class TestServer
@@ -28,18 +29,18 @@ class TestServer
         server.flush();
     }
 
-    function onData(input:haxe.io.BytesInput)
+    function onData(connection:Connection)
     {
-        trace("onData " + input.readInt16());
+        trace("onData " + connection.input.readInt16());
 
-        var msgLength = input.readInt8();
-        var msg = input.readString(msgLength);
+        var msgLength = connection.input.readInt8();
+        var msg = connection.input.readString(msgLength);
         trace("onData " + msg);
     }
 
-    function onConnection()
+    function onConnection(connection:Connection)
     {
-        trace("CONNNECTION");
+        trace("CONNNECTION " + connection);
 
         server.output.writeInt16(42);
 
@@ -48,7 +49,7 @@ class TestServer
         server.output.writeString(msg);
     }
 
-    function onDisconnection()
+    function onDisconnection(connection:Connection)
     {
         trace("DISCONNECTION");
     }

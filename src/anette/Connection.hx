@@ -1,13 +1,15 @@
 package anette;
 
-import haxe.io.BytesInput;
+// import haxe.io.BytesInput;
+import anette.Bytes;
 import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;
 
 
 class Connection
 {
-    public var output:BytesOutput = new BytesOutput();
+    public var input:BytesInputEnhanced;
+    public var output:BytesOutputEnhanced = new BytesOutputEnhanced();
     public var buffer:BytesBuffer = new BytesBuffer();
     var handler:BaseHandler;  // will call onData, timeout & send methods
     var socket:Socket;  // cached only to pass it to handler.send, not used
@@ -15,15 +17,20 @@ class Connection
 
     public function new(handler, socket)
     {
+        trace("Anette : New Connection");
         this.socket = socket;
         this.handler = handler;
         this.output.bigEndian = true;
     }
 
+    inline function backToTheBufferYo()
+    {
+    }
+
     public function readDatas()
     {
-
-        if(buffer.length > 2)
+        // trace("#");
+        while(buffer.length > 2)
         {
             var offset = 0;
 
@@ -31,29 +38,31 @@ class Connection
             var bytes = buffer.getBytes();
 
             // PUSH BUFFER INTO BYTESINPUT FOR READING
-            var input = new BytesInput(bytes);
+            this.input = new BytesInputEnhanced(bytes);
             input.bigEndian = true;
 
+            var msgLength = input.readInt16();
+            if(input.length - input.position < msgLength)
+            {
+                // SLICE REMAINING BYTES AND PUSH BACK TO BUFFER
+                buffer = new BytesBuffer();
+                buffer.addBytes(bytes, input.position - 2, buffer.length);
+                break;
+            }
+
             // READ EACH MESSAGE
-            while(input.length - input.position > 2)
-            {    
-                var msgLength = input.readInt16();
-                if(input.length >= msgLength)
-                {
-                    handler.onData(input);
-                    offset = 2 + msgLength;
-                }
-                else
-                {
-                    break;
-                }
+            var msgPos = input.position;
+            while(input.position - msgPos < msgLength)
+            {
+                handler.onData(this);
             }
 
             // SLICE REMAINING BYTES AND PUSH BACK TO BUFFER
             buffer = new BytesBuffer();
-            buffer.addBytes(bytes, offset, buffer.length);
+            buffer.addBytes(bytes, input.position, buffer.length);
 
             // REFRESH TIMER FOR DISCONNECTIONS
+            // Todo : lastreceive !?
             lastSend = Time.now();
         }
 
@@ -61,7 +70,7 @@ class Connection
         var timeSinceLastSend = Time.now() - lastSend;
         if(handler.timeout != 0 && timeSinceLastSend > handler.timeout)
         {
-            handler.disconnectSocket(socket);
+            disconnect();
         }
     }
 
@@ -73,7 +82,7 @@ class Connection
             // GENERATE MESSAGE WITH LENGTH PREFIX
             var outputLength = output.length;
 
-            var msgOutput = new BytesOutput(); // Todo getBo static method
+            var msgOutput = new BytesOutputEnhanced(); // Todo getBo static method
             msgOutput.bigEndian = true;        // with bigEndian set
             msgOutput.writeInt16(output.length);
             msgOutput.writeBytes(output.getBytes(), 0,
@@ -86,8 +95,13 @@ class Connection
             handler.send(socket, msgOutput.getBytes(), 0, msgOutputLength);
 
             // RESET OUTPUT
-            output = new BytesOutput();
+            output = new BytesOutputEnhanced();
             output.bigEndian = true;
         }
+    }
+
+    public function disconnect()
+    {
+        handler.disconnectSocket(socket, this);
     }
 }

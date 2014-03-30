@@ -3,9 +3,9 @@ package anette;
 
 class BaseHandler
 {
-    public var onConnection:Void->Void;
-    public var onDisconnection:Void->Void;
-    public var onData:haxe.io.BytesInput->Void;
+    public var onData:Connection->Void;
+    public var onConnection:Connection->Void;
+    public var onDisconnection:Connection->Void;
     public var timeout:Float = 0;
 
     public function new()
@@ -22,22 +22,22 @@ class BaseHandler
         throw("Anette : send method undefined");
     }
 
-    public function disconnectSocket(socket:Socket)
+    public function disconnectSocket(socket:Socket, connection:Connection)
     {
         throw("Anette : disconnect method undefined");
     }
 
-    function onDataDefault(input:haxe.io.BytesInput)
+    function onDataDefault(connection:Connection)
     {
         throw("Anette : onData method undefined");
     }
 
-    function onConnectionDefault()
+    function onConnectionDefault(connection:Connection)
     {
         trace("Anette : Connection");
     }    
 
-    function onDisconnectionDefault()
+    function onDisconnectionDefault(connection:Connection)
     {
         trace("Anette : Disconnection");
     }

@@ -22,6 +22,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 
     public function connect(ip:String, port:Int)
     {
+        trace("anette connect");
         socket.connect(ip, port);
         socket.endian = flash.utils.Endian.BIG_ENDIAN;
         socket.addEventListener(Event.CONNECT, onConnect);
@@ -32,7 +33,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 
     function onConnect(event:Event)
     {
-        this.onConnection();
+        this.onConnection(connection);
     }
 
     public function pump()
@@ -46,8 +47,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
         catch(error:Dynamic)
         {
             trace("Anette : Error " + error);
-            disconnectSocket(socket);
-            
+            disconnectSocket(socket, connection);
         }
 
         connection.readDatas();
@@ -60,13 +60,15 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 
     public function disconnect()
     {
-        disconnectSocket(socket);
+        disconnectSocket(socket, connection);
     }
 
     @:allow(anette.Connection)
-    override function disconnectSocket(socket:flash.net.Socket)
+    override function disconnectSocket(socket:flash.net.Socket,
+                                       connection:Connection)
     {
-        this.onDisconnection();
+        trace("anette disconnection");
+        this.onDisconnection(connection);
     }
 
     @:allow(anette.Connection)
@@ -80,12 +82,13 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 
     function onClose(event:Event)
     {
-        this.onDisconnection();
+        this.onDisconnection(connection);
     }
 
     function onError(event:Event)
     {
         trace("Anette : FLASH SOCKET ERROR");
+        disconnectSocket(this.socket, connection);
     }
 
     function onSecError(event:Event)

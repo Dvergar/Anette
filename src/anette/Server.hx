@@ -23,6 +23,7 @@ class Server implements ISocket extends BaseHandler
         serverSocket.listen(1);
         serverSocket.setBlocking(false);
         sockets = [serverSocket];
+        trace("sserver " + address + " / " + port);
     }
 
     public function connect(ip:String, port:Int)
@@ -37,6 +38,7 @@ class Server implements ISocket extends BaseHandler
         {
             if(socket == serverSocket)
             {
+                trace("lel");
                 var newSocket = socket.accept();
                 newSocket.setBlocking(false);
                 newSocket.output.bigEndian = true;
@@ -46,7 +48,7 @@ class Server implements ISocket extends BaseHandler
                 var connection = new Connection(this, newSocket);
                 connections.set(newSocket, connection);
 
-                this.onConnection();
+                this.onConnection(connection);
             }
             else
             {
@@ -60,7 +62,7 @@ class Server implements ISocket extends BaseHandler
                 }
                 catch(ex:haxe.io.Eof)
                 {
-                    disconnectSocket(socket);
+                    disconnectSocket(socket, connections.get(socket));
                 }
                 catch(ex:haxe.io.Error)
                 {
@@ -79,15 +81,24 @@ class Server implements ISocket extends BaseHandler
     }
 
     @:allow(anette.Connection)
-    override function disconnectSocket(connectionSocket:sys.net.Socket)
+    override function disconnectSocket(connectionSocket:sys.net.Socket,
+                                       connection:Connection)
     {
-        connectionSocket.shutdown(true, true);
-        connectionSocket.close();
+        // try
+        // {
+            connectionSocket.shutdown(true, true);
+            connectionSocket.close();
+        // }
+        // catch(error:Dynamic)
+        // {
+        //     trace("Trying to shutdown socket, probably already dead");
+        //     trace("Error : " + error);
+        // }
 
         // CLEAN UP
         sockets.remove(connectionSocket);
         connections.remove(connectionSocket);
-        onDisconnection();
+        onDisconnection(connection);
     }
 
     // CALLED BY CONNECTION
