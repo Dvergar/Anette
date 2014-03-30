@@ -40,7 +40,7 @@ class TestServer
 
     function onConnection(connection:Connection)
     {
-        trace("CONNNECTION " + connection);
+        trace("CONNNECTION");
 
         server.output.writeInt16(42);
 

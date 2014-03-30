@@ -162,9 +162,12 @@ class Server implements ISocket extends BaseHandler
                     conn.buffer.addByte(buffer.readInt8(i));
             });
 
-            this.onConnection();
+            this.onConnection(connection);
             newSocket.on("error", function() {trace("error");});
-            newSocket.on("close", function() {disconnectSocket(newSocket);});
+            newSocket.on("close", function()
+                                  {
+                                      disconnectSocket(newSocket, connection);
+                                  });
 
         });
         server.listen(port, address);
@@ -183,20 +186,21 @@ class Server implements ISocket extends BaseHandler
     }
 
     @:allow(anette.Connection)
-    override function disconnectSocket(connectionSocket:NodeNetSocket)
+    override function disconnectSocket(connectionSocket:NodeNetSocket,
+                                       connection:Connection)
     {
         connectionSocket.end();
         connectionSocket.destroy();
 
         // CLEAN UP
         connections.remove(connectionSocket);
-        onDisconnection();
+        onDisconnection(connection);
     }
 
     @:allow(anette.Connection)
     override function send(connectionSocket:NodeNetSocket,
-                                  bytes:haxe.io.Bytes,
-                                  offset:Int, length:Int)
+                           bytes:haxe.io.Bytes,
+                           offset:Int, length:Int)
     {
         connectionSocket.write(new NodeBuffer(bytes.getData()));
     }
@@ -223,6 +227,7 @@ class Server implements ISocket extends BaseHandler
         this.output.bigEndian = true;
     }
 }
+
 
 #elseif (nodejs && websocket)
 import anette.Socket;
@@ -254,10 +259,11 @@ class Server implements ISocket extends BaseHandler
                     conn.buffer.addByte(buffer.readInt8(i));
             });
 
-            newSocket.on("close", function(o) {disconnectSocket(newSocket);});
+            newSocket.on("close", function(o) {trace("close"); _disconnectSocket(newSocket,
+                                                                connection);});
             newSocket.on("error", function(o) {trace("error");});
 
-            this.onConnection();
+            this.onConnection(connection);
         });
     }
 
@@ -274,11 +280,18 @@ class Server implements ISocket extends BaseHandler
     }
 
     @:allow(anette.Connection)
-    override function disconnectSocket(connectionSocket:WebSocket)
+    override function disconnectSocket(connectionSocket:WebSocket,
+                                       connection:Connection)
     {
-        // CLEAN UP
+        connectionSocket.terminate();
+    }
+
+    // BECAUSE .terminate triggers "close" event -> _disconnectSocket
+    function _disconnectSocket(connectionSocket:WebSocket,
+                               connection:Connection)
+    {
         connections.remove(connectionSocket);
-        onDisconnection();
+        onDisconnection(connection);
     }
 
     @:allow(anette.Connection)

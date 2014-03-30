@@ -1,9 +1,8 @@
 package anette;
 
-// import haxe.io.BytesInput;
 import anette.Bytes;
-import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;
+import haxe.io.Bytes;
 
 
 class Connection
@@ -13,7 +12,7 @@ class Connection
     public var buffer:BytesBuffer = new BytesBuffer();
     var handler:BaseHandler;  // will call onData, timeout & send methods
     var socket:Socket;  // cached only to pass it to handler.send, not used
-    var lastSend:Float = Time.now();  // used to detect inactivities
+    var lastReceive:Float = Time.now();  // used to detect inactivities
 
     public function new(handler, socket)
     {
@@ -21,10 +20,6 @@ class Connection
         this.socket = socket;
         this.handler = handler;
         this.output.bigEndian = true;
-    }
-
-    inline function backToTheBufferYo()
-    {
     }
 
     public function readDatas()
@@ -62,12 +57,11 @@ class Connection
             buffer.addBytes(bytes, input.position, buffer.length);
 
             // REFRESH TIMER FOR DISCONNECTIONS
-            // Todo : lastreceive !?
-            lastSend = Time.now();
+            lastReceive = Time.now();
         }
 
         // DISCONNECT IF CONNECTION NOT ALIVE
-        var timeSinceLastSend = Time.now() - lastSend;
+        var timeSinceLastSend = Time.now() - lastReceive;
         if(handler.timeout != 0 && timeSinceLastSend > handler.timeout)
         {
             disconnect();

@@ -27,6 +27,7 @@ extern class WebSocket
 {
     function on(event:String, fn:Dynamic->Void):Void;
     function send(data:Dynamic, opt:{binary:Bool, mask:Bool}):Void;
+    function terminate():Void;
 }
 
 typedef Socket = WebSocket;

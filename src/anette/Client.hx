@@ -133,7 +133,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
             socket.input.bigEndian = true;
             socket.setBlocking(false);
             this.connection = new Connection(this, socket);
-            this.onConnection();
+            this.onConnection(connection);
         }
     }
 
@@ -152,7 +152,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
             }
             catch(ex:haxe.io.Eof)
             {
-                disconnectSocket(socket);
+                disconnectSocket(socket, connection);
             }
             catch(ex:haxe.io.Error)
             {
@@ -171,7 +171,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 
     public function disconnect()
     {
-        disconnectSocket(socket);
+        disconnectSocket(socket, connection);
     }
 
     function onConnectionError(error:Dynamic)
@@ -180,18 +180,19 @@ class Client implements ISocket.IClientSocket extends BaseHandler
     }
 
     @:allow(anette.Connection)
-    override function disconnectSocket(_socket:sys.net.Socket)
+    override function disconnectSocket(_socket:sys.net.Socket,
+                                       connection:Connection)
     {
         _socket.shutdown(true, true);
         _socket.close();
         connected = false;
-        this.onDisconnection();
+        this.onDisconnection(connection);
     }
 
     @:allow(anette.Connection)
     override function send(_socket:sys.net.Socket,
-                                  bytes:haxe.io.Bytes,
-                                  offset:Int, length:Int)
+                           bytes:haxe.io.Bytes,
+                           offset:Int, length:Int)
     {
         try
         {
@@ -227,7 +228,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
         {  
             this.connection = new Connection(this, socket);
             this.connected = true;
-            this.onConnection();
+            this.onConnection(connection);
         }
 
         socket.onmessage = function(event:Dynamic)
@@ -239,7 +240,8 @@ class Client implements ISocket.IClientSocket extends BaseHandler
                 connection.buffer.addByte(d.getUint8(i));
         }
 
-        socket.onclose = function(event) {disconnectSocket(socket);};
+        socket.onclose = function(event) {_disconnectSocket(socket,
+                                                            connection);};
         socket.onerror = function(event) {trace("error");};
     }
 
@@ -255,7 +257,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 
     public function disconnect()
     {
-        disconnectSocket(socket);
+        disconnectSocket(socket, connection);
     }
 
     function onConnectionError(error:Dynamic)
@@ -264,17 +266,25 @@ class Client implements ISocket.IClientSocket extends BaseHandler
     }
 
     @:allow(anette.Connection)
-    override function disconnectSocket(_socket:js.html.WebSocket)
+    override function disconnectSocket(_socket:js.html.WebSocket,
+                                       connection:Connection)
+    {
+        _socket.close();
+    }
+
+    // BECAUSE .close triggers "onclose" event -> _disconnectSocket
+    function _disconnectSocket(_socket:js.html.WebSocket,
+                               connection:Connection)
     {
         connected = false;
-        this.onDisconnection();
+        onDisconnection(connection);
     }
 
     @:allow(anette.Connection)
     // TODO : remove offset/length arguments
     override function send(_socket:js.html.WebSocket,
-                                  bytes:haxe.io.Bytes,
-                                  offset:Int, length:Int)
+                           bytes:haxe.io.Bytes,
+                           offset:Int, length:Int)
     {
         var ba = new js.html.Int8Array(bytes.getData());
         _socket.send(ba);
