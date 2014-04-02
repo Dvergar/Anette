@@ -38,7 +38,6 @@ class Server implements ISocket extends BaseHandler
         {
             if(socket == serverSocket)
             {
-                trace("lel");
                 var newSocket = socket.accept();
                 newSocket.setBlocking(false);
                 newSocket.output.bigEndian = true;
@@ -84,16 +83,8 @@ class Server implements ISocket extends BaseHandler
     override function disconnectSocket(connectionSocket:sys.net.Socket,
                                        connection:Connection)
     {
-        // try
-        // {
-            connectionSocket.shutdown(true, true);
-            connectionSocket.close();
-        // }
-        // catch(error:Dynamic)
-        // {
-        //     trace("Trying to shutdown socket, probably already dead");
-        //     trace("Error : " + error);
-        // }
+        connectionSocket.shutdown(true, true);
+        connectionSocket.close();
 
         // CLEAN UP
         sockets.remove(connectionSocket);
@@ -107,7 +98,15 @@ class Server implements ISocket extends BaseHandler
                                   bytes:haxe.io.Bytes,
                                   offset:Int, length:Int)
     {
-        connectionSocket.output.writeBytes(bytes, offset, length);
+        try
+        {
+            connectionSocket.output.writeBytes(bytes, offset, length);
+        }
+        catch(error:Dynamic)
+        {
+            trace("Anette : Send error " + error);
+            disconnectSocket(connectionSocket, connections.get(connectionSocket));
+        }
     }
 
     public function flush()
@@ -159,7 +158,7 @@ class Server implements ISocket extends BaseHandler
                 var conn = connections.get(newSocket);
                 var bufferLength:Int = cast buffer.length;
                 for(i in 0...bufferLength)
-                    conn.buffer.addByte(buffer.readInt8(i));
+                    conn.buffer.addByte(buffer.readUInt8(i));
             });
 
             this.onConnection(connection);

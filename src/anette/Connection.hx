@@ -24,7 +24,6 @@ class Connection
 
     public function readDatas()
     {
-        // trace("#");
         while(buffer.length > 2)
         {
             var offset = 0;
@@ -77,7 +76,7 @@ class Connection
             var outputLength = output.length;
 
             var msgOutput = new BytesOutputEnhanced(); // Todo getBo static method
-            msgOutput.bigEndian = true;        // with bigEndian set
+            msgOutput.bigEndian = true;                // with bigEndian set
             msgOutput.writeInt16(output.length);
             msgOutput.writeBytes(output.getBytes(), 0,
                                  outputLength);
