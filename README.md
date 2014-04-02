@@ -26,23 +26,23 @@ Sends datas from the buffer into the internet tubes, generally used in a loop.
 
 **server.output**
 
-Object of type [`haxe.io.BytesOutput`](http://api.haxe.org/haxe/io/BytesOutput.html). This is what you should use to send datas.
+Object which inherits from [`haxe.io.BytesOutput`](http://api.haxe.org/haxe/io/BytesOutput.html). This is what you should use to send datas.
 
 example : `server.output.writeString("hello world");`
 
 **server.onConnection**
 
-Callback function of type `Void->Void` when a connection is established.
+Callback function of type `Connection->Void` when a connection is established.
 
 **server.onDisconnection**
 
-Callback function of type `Void->Void` when a client disconnects.
+Callback function of type `Connection->Void` when a client disconnects.
 
 **server.onData**
 
-Callback function of type `haxe.io.BytesInput->Void` when data is received. You should then use [`haxe.io.BytesInput`](http://api.haxe.org/haxe/io/BytesInput.html) when passed as argument of the function.
+Callback function of type `Connection->Void` when data is received. You should then use `connection.input` to read the datas, input inherits from [`haxe.io.BytesInput`](http://api.haxe.org/haxe/io/BytesInput.html).
 
-example : `server.onData = function(input:haxe.io.BytesInput) { input.readString(11) };`
+example : `server.onData = function(connection:Connection) { connection.input.readString(11) };`
 
 **server.timeout**
 
@@ -73,23 +73,23 @@ Property of type `Bool`, returns the state of the connection.
 
 **client.output**
 
-Object of type [`haxe.io.BytesOutput`](http://api.haxe.org/haxe/io/BytesOutput.html). This is what you should use to send datas.
+Object which inherits from [`haxe.io.BytesOutput`](http://api.haxe.org/haxe/io/BytesOutput.html). This is what you should use to send datas.
 
-example : `client.output.writeString("hello world");`
+example : `connection.output.writeString("hello world");`
 
-**client.onConnection**
+**server.onConnection**
 
-Callback function of type `Void->Void` when a connection is established.
+Callback function of type `Connection->Void` when a connection is established.
 
-**client.onDisconnection**
+**server.onDisconnection**
 
-Callback function of type `Void->Void` when a client disconnects.
+Callback function of type `Connection->Void` when a client disconnects.
 
 **client.onData**
 
-Callback function of type `haxe.io.BytesInput->Void` when data is received. You should then use [`haxe.io.BytesInput`](http://api.haxe.org/haxe/io/BytesInput.html) when passed as argument of the function.
+Callback function of type `Connection->Void` when data is received. You should then use `connection.input` to read the datas, input inherits from [`haxe.io.BytesInput`](http://api.haxe.org/haxe/io/BytesInput.html).
 
-example : `client.onData = function(input:haxe.io.BytesInput) { input.readString(11) };`
+example : `client.onData = function(connection:Connection) { connection.input.readString(11) };`
 
 **client.timeout**
 
@@ -123,7 +123,7 @@ class TestServer
         Sys.sleep(1/60);
     }
 
-    function onConnection()
+    function onConnection(connection:Connection)
     {
         trace("CONNNECTION");
 
@@ -134,16 +134,16 @@ class TestServer
         server.output.writeString(msg);
     }
 
-    function onData(input:haxe.io.BytesInput)
+    function onData(connection:Connection)
     {
-        trace("onData " + input.readInt16());
+        trace("onData " + connection.input.readInt16());
 
-        var msgLength = input.readInt8();
-        var msg = input.readString(msgLength);
+        var msgLength = connection.input.readInt8();
+        var msg = connection.input.readString(msgLength);
         trace("onData " + msg);
     }
 
-    function onDisconnection()
+    function onDisconnection(connection:Connection)
     {
         trace("DISCONNECTION");
     }
@@ -188,27 +188,27 @@ class TestClient
         }
     }
 
-    function onData(input:haxe.io.BytesInput)
+    function onData(connection:Connection)
     {
-        trace("onData " + input.readInt16());
+        trace("onData " + connection.input.readInt16());
 
-        var msgLength = input.readInt8();
-        var msg = input.readString(msgLength);
+        var msgLength = connection.input.readInt8();
+        var msg = connection.input.readString(msgLength);
         trace("onData " + msg);
     }
 
-    function onConnection()
+    function onConnection(connection:Connection)
     {
         trace("CONNNECTION");
         
-        client.connection.output.writeInt16(42);
+        connection.output.writeInt16(42);
 
         var msg = "Hello Server";
-        client.connection.output.writeInt8(msg.length);
-        client.connection.output.writeString(msg);
+        connection.output.writeInt8(msg.length);
+        connection.output.writeString(msg);
     }
 
-    function onDisconnection()
+    function onDisconnection(connection:Connection)
     {
         trace("DISCONNECTION");
     }
