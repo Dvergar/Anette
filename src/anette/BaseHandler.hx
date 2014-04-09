@@ -1,5 +1,8 @@
 package anette;
 
+// import anette.IProtocol;
+// import anette.Protocol;
+
 
 class BaseHandler
 {
@@ -7,12 +10,14 @@ class BaseHandler
     public var onConnection:Connection->Void;
     public var onDisconnection:Connection->Void;
     public var timeout:Float = 0;
+    public var protocol:IProtocol;
 
     public function new()
     {
         onConnection = onConnectionDefault;
         onDisconnection = onDisconnectionDefault;
         onData = onDataDefault;
+        protocol = new Protocol.Prefixed();
     }
 
     public function send(socket:Socket,

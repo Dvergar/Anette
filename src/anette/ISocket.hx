@@ -7,7 +7,8 @@ interface ISocket
     function disconnectSocket(socket:Socket, connection:Connection):Void;
     function pump():Void;
     function flush():Void;
-    function send(connectionSocket:Socket, bytes:haxe.io.Bytes, offset:Int, length:Int):Void;
+    function send(connectionSocket:Socket, bytes:haxe.io.Bytes,
+    			 				  offset:Int, length:Int):Void;
 }
 
 interface IClientSocket extends ISocket
