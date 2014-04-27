@@ -18,6 +18,7 @@ class Prefixed implements IProtocol
             var offset = 0;
 
             // GET BUFFER
+            var bufferLength = conn.buffer.length;
             var bytes = conn.buffer.getBytes();
 
             // PUSH BUFFER INTO BYTESINPUT FOR READING
@@ -31,22 +32,23 @@ class Prefixed implements IProtocol
                 conn.buffer = new BytesBuffer();
                 conn.buffer.addBytes(bytes,
                                      conn.input.position - 2,
-                                     conn.buffer.length);
+                                     bufferLength);
                 break;
             }
-
+            // trace("POUF");
             // READ EACH MESSAGE
             var msgPos = conn.input.position;
             while(conn.input.position - msgPos < msgLength)
             {
                 conn.handler.onData(conn);
             }
+            // trace("ENDPOUF");
 
             // SLICE REMAINING BYTES AND PUSH BACK TO BUFFER
             conn.buffer = new BytesBuffer();
             conn.buffer.addBytes(bytes,
                                  conn.input.position,
-                                 conn.buffer.length);
+                                 bufferLength - conn.input.position);
 
             // REFRESH TIMER FOR DISCONNECTIONS
             conn.lastReceive = Time.now();
