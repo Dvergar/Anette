@@ -3,6 +3,8 @@ package anette;
 
 class BytesInputEnhanced extends haxe.io.BytesInput
 {
+	public var mark:Int;
+	
 	public function new(b:haxe.io.Bytes, ?pos:Int = null, ?len:Int = null)
 	{
 		super(b, pos, len);
