@@ -26,7 +26,7 @@ class Prefixed implements IProtocol
             conn.input.bigEndian = true;
 
             var msgLength = conn.input.readInt16();
-            trace("msglength " + msgLength);
+            // trace("msglength " + msgLength);
             if(conn.input.length - conn.input.position < msgLength)
             {
                 // SLICE REMAINING BYTES AND PUSH BACK TO BUFFER
@@ -62,7 +62,7 @@ class Prefixed implements IProtocol
         {
             // GENERATE MESSAGE WITH LENGTH PREFIX
             var outputLength = conn.output.length;
-            trace("send " + outputLength);
+            // trace("send " + outputLength);
 
             var msgOutput = new BytesOutputEnhanced(); // Todo getBo static method
             msgOutput.bigEndian = true;                // with bigEndian set

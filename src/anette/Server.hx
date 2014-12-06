@@ -3,6 +3,7 @@ package anette;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;
+import anette.Bytes;
 
 
 #if (cpp||neko)
@@ -10,15 +11,17 @@ class Server implements ISocket extends BaseHandler
 {
     var serverSocket:sys.net.Socket;
     var sockets:Array<sys.net.Socket>;
-    var connections:Map<sys.net.Socket, Connection> = new Map();
-    public var output:BytesOutput = new BytesOutput();
+    public var connections:Map<sys.net.Socket, Connection> = new Map();
+    // public var output:BytesOutput = new BytesOutput();
+    // public var output:BytesDispatcher;
 
     public function new(address:String, port:Int)
     {
         super();
+        // this.output = new BytesDispatcher(connections);
         serverSocket = new sys.net.Socket();
         serverSocket.bind(new sys.net.Host(address), port);
-        serverSocket.output.bigEndian = true;
+        // serverSocket.output.bigEndian = true;
         serverSocket.input.bigEndian = true;
         serverSocket.listen(1);
         serverSocket.setBlocking(false);
@@ -111,24 +114,30 @@ class Server implements ISocket extends BaseHandler
 
     public function flush()
     {
-        // GET BROADCAST BUFFER
-        var broadcastLength = this.output.length;
-        var broadcastBytes = this.output.getBytes();
+        // // GET BROADCAST BUFFER
+        // var broadcastLength = this.output.length;
+        // var broadcastBytes = this.output.getBytes();
 
+        // for(socket in connections.keys())
+        // {
+        //     var conn = connections.get(socket);
+
+        //     // PUSH BROADCAST BUFFER TO EACH CONNECTION
+        //     if(broadcastLength > 0)
+        //         conn.output.writeBytes(broadcastBytes, 0, broadcastLength);
+
+        //     conn.flush();
+        // }
+
+        // // RESET BROADCAST BUFFER
+        // this.output = new BytesOutput();
+        // this.output.bigEndian = true;
         for(socket in connections.keys())
         {
             var conn = connections.get(socket);
-
-            // PUSH BROADCAST BUFFER TO EACH CONNECTION
-            if(broadcastLength > 0)
-                conn.output.writeBytes(broadcastBytes, 0, broadcastLength);
-
+            // trace("conn " + conn.output.length);
             conn.flush();
         }
-
-        // RESET BROADCAST BUFFER
-        this.output = new BytesOutput();
-        this.output.bigEndian = true;
     }
 }
 
