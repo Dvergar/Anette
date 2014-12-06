@@ -1,0 +1,6 @@
+-main TestHaxe.hx
+-debug
+-lib anette
+-lib nodejs
+-js "testHaxe.js"
+-cmd "node testHaxe.js"

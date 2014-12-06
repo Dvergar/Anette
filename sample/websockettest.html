@@ -1,0 +1,51 @@
+<html>
+<head>
+    <script type="text/javascript">
+        var s = new WebSocket("ws://192.168.1.4:32000");
+        // s.binaryType = "arraybuffer";
+        s.onopen = function (event) {  
+            console.log("on connect");
+            // var origBuffer = new ArrayBuffer(20);
+            // var x = new DataView(origBuffer, 0);
+            // x.setInt16(0, 5000);
+            
+            // var arr = new Uint8Array(origBuffer),
+                // part = arr.subarray(0, 2), // slice bytes from index 2 to 4
+                // buffer = new Uint8Array(part).buffer; // create new array to update buffer
+                                                      // and get the buffer
+            
+            // s.send("hello");
+        };
+
+        s.onmessage = function(e) {
+            // console.log("msg " + event.data);
+            console.log(typeof(e.data));
+            console.log(e.data instanceof ArrayBuffer);
+            console.log(e.data instanceof Blob);
+            console.log(typeof e.data === "string");
+
+            var d = new DataView(event.data);
+            console.log(d.getInt16(0));
+
+
+            // console.log("msg > " + event.data);
+            // console.log("msg " + event.data.byteLength);
+
+            // var d = new DataView(event.data);
+            // console.log(event.data.byteLength);
+            // if(event.data.byteLength > 0)
+            // {
+                // console.log(d.getInt16());
+            // }
+        }
+
+        s.onerror = function(event) {
+            console.log("error");
+        }
+
+    </script>
+</head>
+
+<body>
+</body>
+</html>

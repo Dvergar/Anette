@@ -1,0 +1,11 @@
+{
+	"name": "anette",
+	"url": "https://github.com/Dvergar/Anette",
+	"license": "BSD",
+	"tags": ["networking", "tcp"],
+	"description": "A simple cross-platform networking library",
+	"version": "0.0.2",
+	"releasenote": "FIXED bad packaging",
+	"contributors": [ "caribou" ],
+	"dependencies": {}
+}
