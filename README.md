@@ -24,12 +24,6 @@ Looks for new messages and put them in the buffer, generally used in a loop.
 
 Sends datas from the buffer into the internet tubes, generally used in a loop.
 
-**server.output**
-
-Object which inherits from [`haxe.io.BytesOutput`](http://api.haxe.org/haxe/io/BytesOutput.html). This is what you should use to send datas.
-
-example : `server.output.writeString("hello world");`
-
 **server.onConnection**
 
 Callback function of type `Connection->Void` when a connection is established.
@@ -43,6 +37,19 @@ Callback function of type `Connection->Void` when a client disconnects.
 Callback function of type `Connection->Void` when data is received. You should then use `connection.input` to read the datas, input inherits from [`haxe.io.BytesInput`](http://api.haxe.org/haxe/io/BytesInput.html).
 
 example : `server.onData = function(connection:Connection) { connection.input.readString(11) };`
+
+**server.protocol**
+
+Property of type `Protocol`.
+
+There is two built-in protocols: `Prefixed` and `Line`
+
+Protocol used to pack & unpack datas. Note that if you're not using any predefined protocol you'll have to build your own with or without the anette API, otherwise data communication won't be reliable.
+
+* `Prefixed`: Each message is prepended with the length of the message via a short (16bits).
+* `Line`: Each message is separated by CR and/or LF bytes.
+
+example: `server.protocol = new Prefixed();`
 
 **server.timeout**
 
@@ -71,17 +78,11 @@ Drops the connection.
 
 Property of type `Bool`, returns the state of the connection.
 
-**client.output**
-
-Object which inherits from [`haxe.io.BytesOutput`](http://api.haxe.org/haxe/io/BytesOutput.html). This is what you should use to send datas.
-
-example : `connection.output.writeString("hello world");`
-
-**server.onConnection**
+**client.onConnection**
 
 Callback function of type `Connection->Void` when a connection is established.
 
-**server.onDisconnection**
+**client.onDisconnection**
 
 Callback function of type `Connection->Void` when a client disconnects.
 
@@ -91,50 +92,70 @@ Callback function of type `Connection->Void` when data is received. You should t
 
 example : `client.onData = function(connection:Connection) { connection.input.readString(11) };`
 
+**client.protocol**
+
+Property of type `Protocol`.
+
+There is two built-in protocols: `Prefixed` and `Line`
+
+Protocol used to pack & unpack datas. Note that if you're not using any predefined protocol you'll have to build your own with or without the anette API, otherwise data communication won't be reliable.
+
+* `Prefixed`: Each message is prepended with the length of the message via a short (16bits).
+* `Line`: Each message is separated by CR and/or LF bytes.
+
+example: `client.protocol = new Prefixed();`
+
 **client.timeout**
 
 Property of type `Float`, defines the time of inactivity in seconds before the connection is dropped.
 
 
+##Connection
+
+**connection.output**
+
+Object which inherits from [`haxe.io.BytesOutput`](http://api.haxe.org/haxe/io/BytesOutput.html). This is what you should use to send datas.
+
+example : `connection.output.writeString("hello world");`
+
+**connection.input**
+
+Object which inherits from [`haxe.io.BytesInput`](http://api.haxe.org/haxe/io/BytesInput.html). This is what you should use to read datas.
+
+example : `connection.output.readString(11);`
+
+
 ##Server Example
 
 ```Haxe
-import anette.Server;
-
-
 class TestServer
 {
-    var server:Server;
+    var server:anette.Server;
 
     public function new()
     {
-        this.server = new Server("127.0.0.1", 32000);
+        this.server = new anette.Server("192.168.1.4", 32000);
         this.server.onData = onData;
         this.server.onConnection = onConnection;
         this.server.onDisconnection = onDisconnection;
+        this.server.timeout = 10;
 
-        while(true) loop();
+        // DIFFERENT TARGETS, DIFFERENT LOOPS
+        #if js
+        var timer = new haxe.Timer(Std.int(1000 / 60));
+        timer.run = loop;
+        #else
+        while(true) {loop(); Sys.sleep(1/60);}
+        #end
     }
 
     function loop()
     {
         server.pump();
         server.flush();
-        Sys.sleep(1/60);
     }
 
-    function onConnection(connection:Connection)
-    {
-        trace("CONNNECTION");
-
-        server.output.writeInt16(42);
-
-        var msg = "Hello Client";
-        server.output.writeInt8(msg.length);
-        server.output.writeString(msg);
-    }
-
-    function onData(connection:Connection)
+    function onData(connection:anette.Connection)
     {
         trace("onData " + connection.input.readInt16());
 
@@ -143,7 +164,18 @@ class TestServer
         trace("onData " + msg);
     }
 
-    function onDisconnection(connection:Connection)
+    function onConnection(connection:anette.Connection)
+    {
+        trace("CONNNECTION");
+
+        connection.output.writeInt16(42);
+
+        var msg = "Hello Client";
+        connection.output.writeInt8(msg.length);
+        connection.output.writeString(msg);
+    }
+
+    function onDisconnection(connection:anette.Connection)
     {
         trace("DISCONNECTION");
     }
@@ -153,33 +185,42 @@ class TestServer
         new TestServer();
     }
 }
+
 ```
 
 
 ##Client Example (flash)
 
 ```Haxe
-import anette.Client;
-
-
 class TestClient
 {
-    var client:Client;
+    var client:anette.Client;
 
     public function new()
     {
-
-        this.client = new Client();
+        this.client = new anette.Client();
         this.client.onData = onData;
         this.client.onConnection = onConnection;
         this.client.onDisconnection = onDisconnection;
-        this.client.connect("127.0.0.1", 32000);
+        this.client.timeout = 5;
+        this.client.connect("192.168.1.4", 32000);
 
+        #if flash
         flash.Lib.current.stage.addEventListener(flash.events.Event.ENTER_FRAME,
                                                  loop);
+        #elseif (cpp||neko)
+        while(true) {loop(); Sys.sleep(1 / 60);}
+        #elseif js
+        var timer = new haxe.Timer(Std.int(1000 / 60));
+        timer.run = loop;
+        #end
     }
 
-    function loop(ev:flash.events.Event)
+    #if flash
+    function loop(event:flash.events.Event)
+    #else
+    function loop()
+    #end
     {
         if(client.connected)
         {
@@ -188,7 +229,7 @@ class TestClient
         }
     }
 
-    function onData(connection:Connection)
+    function onData(connection:anette.Connection)
     {
         trace("onData " + connection.input.readInt16());
 
@@ -197,18 +238,18 @@ class TestClient
         trace("onData " + msg);
     }
 
-    function onConnection(connection:Connection)
+    function onConnection(connection:anette.Connection)
     {
         trace("CONNNECTION");
         
-        connection.output.writeInt16(42);
+        client.connection.output.writeInt16(42);
 
         var msg = "Hello Server";
-        connection.output.writeInt8(msg.length);
-        connection.output.writeString(msg);
+        client.connection.output.writeInt8(msg.length);
+        client.connection.output.writeString(msg);
     }
 
-    function onDisconnection(connection:Connection)
+    function onDisconnection(connection:anette.Connection)
     {
         trace("DISCONNECTION");
     }

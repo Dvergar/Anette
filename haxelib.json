@@ -4,8 +4,8 @@
 	"license": "BSD",
 	"tags": ["networking", "tcp"],
 	"description": "A simple cross-platform networking library",
-	"version": "0.0.2",
-	"releasenote": "FIXED bad packaging",
+	"version": "0.0.3",
+	"releasenote": "updates samples & doc",
 	"contributors": [ "caribou" ],
 	"dependencies": {}
 }

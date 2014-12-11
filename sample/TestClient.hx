@@ -1,19 +1,15 @@
-import anette.Client;
-
-
 class TestClient
 {
-    var client:Client;
+    var client:anette.Client;
 
     public function new()
     {
-
-        this.client = new Client();
+        this.client = new anette.Client();
         this.client.onData = onData;
         this.client.onConnection = onConnection;
         this.client.onDisconnection = onDisconnection;
         this.client.timeout = 5;
-        this.client.connect("192.168.1.4", 32000);
+        this.client.connect("127.0.0.1", 32000);
 
         #if flash
         flash.Lib.current.stage.addEventListener(flash.events.Event.ENTER_FRAME,

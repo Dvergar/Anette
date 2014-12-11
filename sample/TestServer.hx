@@ -1,14 +1,10 @@
-import anette.Server;
-import anette.Connection;
-
-
 class TestServer
 {
-    var server:Server;
+    var server:anette.Server;
 
     public function new()
     {
-        this.server = new Server("192.168.1.4", 32000);
+        this.server = new anette.Server("127.0.0.1", 32000);
         this.server.onData = onData;
         this.server.onConnection = onConnection;
         this.server.onDisconnection = onDisconnection;
@@ -29,7 +25,7 @@ class TestServer
         server.flush();
     }
 
-    function onData(connection:Connection)
+    function onData(connection:anette.Connection)
     {
         trace("onData " + connection.input.readInt16());
 
@@ -38,18 +34,18 @@ class TestServer
         trace("onData " + msg);
     }
 
-    function onConnection(connection:Connection)
+    function onConnection(connection:anette.Connection)
     {
         trace("CONNNECTION");
 
-        server.output.writeInt16(42);
+        connection.output.writeInt16(42);
 
         var msg = "Hello Client";
-        server.output.writeInt8(msg.length);
-        server.output.writeString(msg);
+        connection.output.writeInt8(msg.length);
+        connection.output.writeString(msg);
     }
 
-    function onDisconnection(connection:Connection)
+    function onDisconnection(connection:anette.Connection)
     {
         trace("DISCONNECTION");
     }
