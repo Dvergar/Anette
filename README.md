@@ -134,10 +134,11 @@ class TestServer
 
     public function new()
     {
-        this.server = new anette.Server("192.168.1.4", 32000);
+        this.server = new anette.Server("127.0.0.1", 32000);
         this.server.onData = onData;
         this.server.onConnection = onConnection;
         this.server.onDisconnection = onDisconnection;
+        this.server.protocol = new anette.Protocol.Prefixed();
         this.server.timeout = 10;
 
         // DIFFERENT TARGETS, DIFFERENT LOOPS
@@ -185,7 +186,6 @@ class TestServer
         new TestServer();
     }
 }
-
 ```
 
 
@@ -202,8 +202,9 @@ class TestClient
         this.client.onData = onData;
         this.client.onConnection = onConnection;
         this.client.onDisconnection = onDisconnection;
+        this.client.protocol = new anette.Protocol.Prefixed();
         this.client.timeout = 5;
-        this.client.connect("192.168.1.4", 32000);
+        this.client.connect("127.0.0.1", 32000);
 
         #if flash
         flash.Lib.current.stage.addEventListener(flash.events.Event.ENTER_FRAME,
@@ -259,5 +260,4 @@ class TestClient
         new TestClient();
     }
 }
-
 ```

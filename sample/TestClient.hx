@@ -8,6 +8,7 @@ class TestClient
         this.client.onData = onData;
         this.client.onConnection = onConnection;
         this.client.onDisconnection = onDisconnection;
+        this.client.protocol = new anette.Protocol.Prefixed();
         this.client.timeout = 5;
         this.client.connect("127.0.0.1", 32000);
 

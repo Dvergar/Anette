@@ -17,7 +17,7 @@ class BaseHandler
         onConnection = onConnectionDefault;
         onDisconnection = onDisconnectionDefault;
         onData = onDataDefault;
-        protocol = new Protocol.Prefixed();
+        protocol = new Protocol.NoProtocol();
     }
 
     public function send(socket:Socket,

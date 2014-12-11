@@ -8,6 +8,7 @@ class TestServer
         this.server.onData = onData;
         this.server.onConnection = onConnection;
         this.server.onDisconnection = onDisconnection;
+        this.server.protocol = new anette.Protocol.Prefixed();
         this.server.timeout = 10;
 
         // DIFFERENT TARGETS, DIFFERENT LOOPS

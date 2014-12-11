@@ -26,7 +26,7 @@ class Server implements ISocket extends BaseHandler
         serverSocket.listen(1);
         serverSocket.setBlocking(false);
         sockets = [serverSocket];
-        trace("sserver " + address + " / " + port);
+        trace("server " + address + " / " + port);
     }
 
     public function connect(ip:String, port:Int)

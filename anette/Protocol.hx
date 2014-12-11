@@ -137,3 +137,46 @@ class Line implements IProtocol
         }
     }
 }
+
+
+// USED AS DEFAULT PROTOCOL, NOT SAFE BUT NEEDED FOR PEOPLE ADDING
+// A PROTOCOL LAYER ON TOP OF ANETTE, WITHOUT USING ITS API
+class NoProtocol implements IProtocol
+{
+    public function new() {}
+
+    public inline function readDatas(conn:Connection)
+    {
+        if(conn.buffer.length > 0)
+        {
+            // GET BUFFER
+            var bytes = conn.buffer.getBytes();
+
+            // PUSH BUFFER INTO BYTESINPUT FOR READING
+            conn.input = new BytesInputEnhanced(bytes);
+            conn.input.bigEndian = true;
+            conn.handler.onData(conn);
+
+            // SLICE REMAINING BYTES AND PUSH BACK TO BUFFER
+            conn.buffer = new BytesBuffer();
+
+            // REFRESH TIMER FOR DISCONNECTIONS
+            conn.lastReceive = Time.now();
+        }
+    }
+
+    public inline function flush(conn:Connection)
+    {
+        // SEND EACH MESSAGE
+        if(conn.output.length > 0)
+        {
+            var outputLength = conn.output.length;
+            conn.handler.send(conn.socket, conn.output.getBytes(), 0,
+                                                       outputLength);
+
+            // RESET OUTPUT
+            conn.output = new BytesOutputEnhanced();
+            conn.output.bigEndian = true;
+        }
+    }
+}
