@@ -86,7 +86,7 @@ class Server implements ISocket extends BaseHandler
     override function disconnectSocket(connectionSocket:sys.net.Socket,
                                        connection:Connection)
     {
-        connectionSocket.shutdown(true, true);
+        // connectionSocket.shutdown(true, true);
         connectionSocket.close();
 
         // CLEAN UP
