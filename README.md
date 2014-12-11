@@ -189,7 +189,7 @@ class TestServer
 ```
 
 
-##Client Example (flash)
+##Client Example
 
 ```Haxe
 class TestClient
