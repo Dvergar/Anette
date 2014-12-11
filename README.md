@@ -3,12 +3,16 @@ Anette
 
 *Anette is a haxe network library with a simple API :)*
 
-* Supports C++, Neko and Javascript (Node) server-side, if using Node websockets are supported.
 * Supports C++, Neko, Flash and Javascript client-side.
+* Supports C++, Neko and Javascript (Node) server-side.
 
-UDP sockets will come at some point.
+**RoadMap**
 
-**Note :** *Node backend depends on [nodejs library](https://github.com/dionjwa/nodejs-std), but since it's overriding some of the haxe library classes it only works if you remove or rename the `haxe` folder in `HaxeToolkit\haxe\lib\nodejs\x,x,x\` hoping that it doesn't break your application.*
+* Move Node backend frome *nodejs* to *HaxeFoundation/hxnodejs*.
+* UDP sockets.
+
+**Note:** *Client js target will only be served by Node backend for now.*  
+**Note2:** *Node backend depends on [nodejs library](https://github.com/dionjwa/nodejs-std), but since it's overriding some of the haxe library classes it only works if you remove or rename the `haxe` folder in `HaxeToolkit\haxe\lib\nodejs\x,x,x\` hoping that it doesn't break your application.*
 
 ##Server
 
