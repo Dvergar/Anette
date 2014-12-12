@@ -1,6 +1,8 @@
 Anette
 ======
 
+*(Node websocket target is broken at the moment)*
+
 *Anette is a haxe network library with a simple API :)*
 
 * Supports C++, Neko, Flash and Javascript client-side.
