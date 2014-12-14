@@ -222,7 +222,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 
     public function connect(ip:String, port:Int)
     {
-        socket = new js.html.WebSocket("ws://192.168.1.4:32000");
+        socket = new js.html.WebSocket("ws://" + ip + ":" + port);
         socket.binaryType = "arraybuffer";
         socket.onopen = function(event)
         {  
@@ -233,6 +233,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 
         socket.onmessage = function(event:Dynamic)
         {
+            trace("wot");
             var ab:js.html.ArrayBuffer = event.data;
             var d = new js.html.DataView(event.data);
 

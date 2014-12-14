@@ -250,7 +250,7 @@ class Server implements ISocket extends BaseHandler
     public function new(address:String, port:Int)
     {
         super();
-        var wss = new WebSocketServer({port: 32000, host:"192.168.1.4"});
+        var wss = new WebSocketServer({port: port, host: address});
 
         wss.on('connection', function(newSocket:WebSocket) {
             var connection = new Connection(this, newSocket);
@@ -258,6 +258,7 @@ class Server implements ISocket extends BaseHandler
 
             newSocket.on('message', function(message)
             {
+                trace("moop");
                 var conn = connections.get(newSocket);
                 var buffer = new js.Node.NodeBuffer(message);
                 var bufferLength:Int = cast buffer.length;
@@ -269,7 +270,7 @@ class Server implements ISocket extends BaseHandler
 
             newSocket.on("close", function(o) {trace("close"); _disconnectSocket(newSocket,
                                                                 connection);});
-            newSocket.on("error", function(o) {trace("error");});
+            newSocket.on("error", function(o) {trace("error: " + o);});
 
             this.onConnection(connection);
         });

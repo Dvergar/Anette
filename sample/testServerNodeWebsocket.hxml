@@ -2,6 +2,7 @@
 -debug
 -lib anette
 -lib nodejs
+# -lib hxnodejs
 # -D dump=pretty
 -D websocket
 -js "_testServer.js"
