@@ -12,13 +12,10 @@ class Server implements ISocket extends BaseHandler
     var serverSocket:sys.net.Socket;
     var sockets:Array<sys.net.Socket>;
     public var connections:Map<sys.net.Socket, Connection> = new Map();
-    // public var output:BytesOutput = new BytesOutput();
-    // public var output:BytesDispatcher;
 
     public function new(address:String, port:Int)
     {
         super();
-        // this.output = new BytesDispatcher(connections);
         serverSocket = new sys.net.Socket();
         serverSocket.bind(new sys.net.Host(address), port);
         // serverSocket.output.bigEndian = true;
