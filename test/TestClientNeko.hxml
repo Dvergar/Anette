@@ -1,0 +1,5 @@
+-main LatencyClient.hx
+-debug
+-lib anette
+-neko "_client.n"
+-cmd "neko _client.n"

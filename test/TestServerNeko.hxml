@@ -1,0 +1,5 @@
+-main LatencyServer.hx
+-debug
+-lib anette
+-neko "_server.n"
+-cmd "neko _server.n"

@@ -1,4 +1,4 @@
--main TestServer.hx
+-main LatencyServer.hx
 -debug
 # -lib hxnodejs
 -lib nodejs

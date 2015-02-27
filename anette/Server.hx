@@ -147,7 +147,7 @@ import js.Node.NodeBuffer;
 class Server implements ISocket extends BaseHandler
 {
     var serverSocket:NodeNetSocket;
-    var connections:Map<NodeNetSocket, Connection> = new Map();
+    public var connections:Map<NodeNetSocket, Connection> = new Map();
     public var output:BytesOutput = new BytesOutput();
 
     public function new(address:String, port:Int)
@@ -156,6 +156,8 @@ class Server implements ISocket extends BaseHandler
         var nodeNet = js.Node.require('net');
         var server = nodeNet.createServer(function(newSocket)
         {
+            var watSocket:NodeNetSocket = newSocket;
+            watSocket.setNoDelay(true);
             var connection = new Connection(this, newSocket);
             connections.set(newSocket, connection); 
 
@@ -175,6 +177,8 @@ class Server implements ISocket extends BaseHandler
                                   });
 
         });
+        trace("port" + port);
+        trace("address" + address);
         server.listen(port, address);
     }
 
