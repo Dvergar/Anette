@@ -22,6 +22,7 @@ class Server implements ISocket extends BaseHandler
         serverSocket.input.bigEndian = true;
         serverSocket.listen(1);
         serverSocket.setBlocking(false);
+        serverSocket.setFastSend(false);
         sockets = [serverSocket];
         trace("server " + address + " / " + port);
     }
@@ -40,6 +41,7 @@ class Server implements ISocket extends BaseHandler
             {
                 var newSocket = socket.accept();
                 newSocket.setBlocking(false);
+                newSocket.setFastSend(false);
                 newSocket.output.bigEndian = true;
                 newSocket.input.bigEndian = true;
                 sockets.push(newSocket);

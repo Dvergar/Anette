@@ -24,6 +24,8 @@ class LatencyClient
         #end
     }
 
+    var lastSend:Float = 0;
+
     #if flash
     function loop(event:flash.events.Event)
     #else
@@ -32,8 +34,12 @@ class LatencyClient
     {
         if(client.connected)
         {
+            if(haxe.Timer.stamp() - lastSend > 1)
+            {
+                client.connection.output.writeInt16(frame);
+                lastSend = haxe.Timer.stamp();
+            }
 
-            client.connection.output.writeInt16(frame);
             frames[frame] = haxe.Timer.stamp();
             
             client.pump();
@@ -41,7 +47,6 @@ class LatencyClient
 
             frame++;
         }
-
     }
 
     var totalLatency:Float = 0;

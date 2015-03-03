@@ -132,6 +132,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
             socket.output.bigEndian = true;
             socket.input.bigEndian = true;
             socket.setBlocking(false);
+            socket.setFastSend(false);
             this.connection = new Connection(this, socket);
             this.onConnection(connection);
         }
