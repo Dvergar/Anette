@@ -20,7 +20,7 @@ Anette
 
 **new Server(ip:String, port:Int)**
 
-Creates a TCP server object and bind it to the given host/port.
+Creates a TCP server object & bind it to the given host/port.
 
 **server.pump()**
 
