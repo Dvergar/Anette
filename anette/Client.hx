@@ -123,7 +123,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
         }
         catch(error:Dynamic)
         {
-            onConnectionError(error);
+            this.onConnectionError(error);
             this.connected = false;
         }
 
@@ -173,11 +173,6 @@ class Client implements ISocket.IClientSocket extends BaseHandler
     public function disconnect()
     {
         disconnectSocket(socket, connection);
-    }
-
-    function onConnectionError(error:Dynamic)
-    {
-        trace("Anette : Connection error > " + error);
     }
 
     @:allow(anette.Connection)

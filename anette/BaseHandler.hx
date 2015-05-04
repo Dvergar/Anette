@@ -8,6 +8,7 @@ class BaseHandler
 {
     public var onData:Connection->Void;
     public var onConnection:Connection->Void;
+    public var onConnectionError:Dynamic->Void;
     public var onDisconnection:Connection->Void;
     public var timeout:Float = 0;
     public var protocol:IProtocol;
@@ -15,6 +16,7 @@ class BaseHandler
     public function new()
     {
         onConnection = onConnectionDefault;
+        onConnectionError = onConnectionErrorDefault;
         onDisconnection = onDisconnectionDefault;
         onData = onDataDefault;
         protocol = new Protocol.NoProtocol();
@@ -40,7 +42,12 @@ class BaseHandler
     function onConnectionDefault(connection:Connection)
     {
         trace("Anette : Connection");
-    }    
+    }
+
+    function onConnectionErrorDefault(error:Dynamic)
+    {
+        trace("Anette : Connection Error");
+    }
 
     function onDisconnectionDefault(connection:Connection)
     {

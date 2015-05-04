@@ -36,6 +36,7 @@ class Prefixed implements IProtocol
                                      bufferLength);
                 break;
             }
+            
             // READ EACH MESSAGE
             var msgPos = conn.input.position;
             while(conn.input.position - msgPos < msgLength)

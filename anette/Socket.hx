@@ -10,6 +10,7 @@ typedef Socket = js.Node.NodeNetSocket;
 #elseif (nodejs && websocket)
 
 // Move to WS
+// @:jsRequire("ws", "Server")
 @:native("WebSocketServer")
 extern class WebSocketServer
 {
@@ -18,6 +19,7 @@ extern class WebSocketServer
     function on(event:String, fn:Dynamic->Void):Void;
     private static function __init__() : Void untyped
     {
+    	// trace(js.Node);
         var WebSocketServer = js.Node.require('ws').Server;
     }
 }

@@ -4,6 +4,7 @@
 -lib nodejs
 # -lib hxnodejs
 # -D dump=pretty
+-dce no
 -D websocket
 -js "_testServer.js"
 -cmd "node _testServer.js"

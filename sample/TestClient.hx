@@ -7,6 +7,7 @@ class TestClient
         this.client = new anette.Client();
         this.client.onData = onData;
         this.client.onConnection = onConnection;
+        this.client.onConnectionError = onConnectionError;
         this.client.onDisconnection = onDisconnection;
         this.client.protocol = new anette.Protocol.Prefixed();
         this.client.timeout = 5;
@@ -55,6 +56,11 @@ class TestClient
         client.connection.output.writeInt8(msg.length);
         client.connection.output.writeString(msg);
     }
+
+    function onConnectionError(error:Dynamic)
+    {
+        trace("error " + error);
+    }    
 
     function onDisconnection(connection:anette.Connection)
     {
