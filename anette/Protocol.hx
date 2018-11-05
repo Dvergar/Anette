@@ -5,18 +5,14 @@ import haxe.io.BytesBuffer;
 import haxe.io.Bytes;
 
 
-
-
 class Prefixed implements IProtocol
 {
     public function new() {}
 
-    public inline function readDatas(conn:Connection)
+    public function readDatas(conn:Connection)
     {
         while(conn.buffer.length > 2)
         {
-            var offset = 0;
-
             // GET BUFFER
             var bufferLength = conn.buffer.length;
             var bytes = conn.buffer.getBytes();
@@ -56,7 +52,7 @@ class Prefixed implements IProtocol
         }
     }
 
-    public inline function flush(conn:Connection)
+    public function flush(conn:Connection)
     {
         // SEND EACH MESSAGE
         if(conn.output.length > 0)
@@ -89,7 +85,7 @@ class Line implements IProtocol
 {
     public function new() {}
 
-    public inline function readDatas(conn:Connection)
+    public function readDatas(conn:Connection)
     {
         if(conn.buffer.length > 0)
         {
@@ -123,7 +119,7 @@ class Line implements IProtocol
         }
     }
 
-    public inline function flush(conn:Connection)
+    public function flush(conn:Connection)
     {
         // SEND EACH MESSAGE
         if(conn.output.length > 0)
@@ -146,7 +142,7 @@ class NoProtocol implements IProtocol
 {
     public function new() {}
 
-    public inline function readDatas(conn:Connection)
+    public function readDatas(conn:Connection)
     {
         if(conn.buffer.length > 0)
         {
@@ -166,7 +162,7 @@ class NoProtocol implements IProtocol
         }
     }
 
-    public inline function flush(conn:Connection)
+    public function flush(conn:Connection)
     {
         // SEND EACH MESSAGE
         if(conn.output.length > 0)

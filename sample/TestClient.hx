@@ -10,16 +10,16 @@ class TestClient
         this.client.onConnectionError = onConnectionError;
         this.client.onDisconnection = onDisconnection;
         this.client.protocol = new anette.Protocol.Prefixed();
-        this.client.timeout = 5;
+        this.client.timeout = 50;
         this.client.connect("127.0.0.1", 32000);
 
         #if flash
         flash.Lib.current.stage.addEventListener(flash.events.Event.ENTER_FRAME,
                                                  loop);
         #elseif (cpp||neko)
-        while(true) {loop(); Sys.sleep(1 / 60);}
+        while(true) {loop(); Sys.sleep(1);}
         #elseif js
-        var timer = new haxe.Timer(Std.int(1000 / 60));
+        var timer = new haxe.Timer(Std.int(1000));
         timer.run = loop;
         #end
     }
@@ -33,6 +33,12 @@ class TestClient
         if(client.connected)
         {
             client.pump();
+
+            client.connection.output.writeInt16(42);
+            var msg = "Hello Server";
+            client.connection.output.writeInt8(msg.length);
+            client.connection.output.writeString(msg);
+
             client.flush();
         }
     }
@@ -50,11 +56,11 @@ class TestClient
     {
         trace("CONNNECTION");
         
-        client.connection.output.writeInt16(42);
+        // client.connection.output.writeInt16(42);
 
-        var msg = "Hello Server";
-        client.connection.output.writeInt8(msg.length);
-        client.connection.output.writeString(msg);
+        // var msg = "Hello Server";
+        // client.connection.output.writeInt8(msg.length);
+        // client.connection.output.writeString(msg);
     }
 
     function onConnectionError(error:Dynamic)

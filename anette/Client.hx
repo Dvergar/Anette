@@ -1,6 +1,8 @@
 package anette;
 
 
+import haxe.io.Bytes;
+
 #if flash
 import flash.events.Event;
 import flash.events.IOErrorEvent;
@@ -100,12 +102,13 @@ class Client implements ISocket.IClientSocket extends BaseHandler
 }
 
 
-#elseif (cpp||neko)
+#elseif (cpp||neko||hl)
 class Client implements ISocket.IClientSocket extends BaseHandler
 {
     @:isVar public var connected(get, null):Bool;
     public var connection:Connection;
     var socket:sys.net.Socket;
+    var buffer:Bytes = Bytes.alloc(8192);
 
     public function new()
     {
@@ -146,9 +149,13 @@ class Client implements ISocket.IClientSocket extends BaseHandler
         {
             try
             {
-                while(true)
+                // MattTuttle paste
+                var bytesReceived = socket.input.readBytes(buffer, 0, buffer.length);
+                // check that buffer was filled
+                if (bytesReceived > 0)
                 {
-                    connection.buffer.addByte(socket.input.readByte());
+                    connection.buffer.addBytes(buffer, 0, bytesReceived);
+                    connection.readDatas();
                 }
             }
             catch(ex:haxe.io.Eof)
@@ -157,7 +164,7 @@ class Client implements ISocket.IClientSocket extends BaseHandler
             }
             catch(ex:haxe.io.Error)
             {
-                if(ex == haxe.io.Error.Blocked) {}
+                if(ex == haxe.io.Error.Blocked) trace("Blockedlol");
                 if(ex == haxe.io.Error.Overflow) trace("OVERFLOW");
                 if(ex == haxe.io.Error.OutsideBounds) trace("OUTSIDE BOUNDS");
             }

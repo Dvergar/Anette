@@ -3,6 +3,8 @@ package anette;
 
 interface ISocket
 {
+	private var buffer:haxe.io.Bytes;
+
     function connect(ip:String, port:Int):Void;
     function disconnectSocket(socket:Socket, connection:Connection):Void;
     function pump():Void;

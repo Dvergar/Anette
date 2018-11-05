@@ -1,6 +1,7 @@
 package anette;
 
 import anette.Bytes;
+import anette.Socket;
 import haxe.io.BytesBuffer;
 import haxe.io.Bytes;
 
@@ -41,6 +42,7 @@ class Connection
 
     public function disconnect()
     {
+        trace("discowat");
         handler.disconnectSocket(socket, this);
     }
 }

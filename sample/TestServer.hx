@@ -9,7 +9,7 @@ class TestServer
         this.server.onConnection = onConnection;
         this.server.onDisconnection = onDisconnection;
         this.server.protocol = new anette.Protocol.Prefixed();
-        this.server.timeout = 10;
+        this.server.timeout = 50;
 
         // DIFFERENT TARGETS, DIFFERENT LOOPS
         #if js
@@ -26,9 +26,12 @@ class TestServer
         server.flush();
     }
 
+    var ids:Int = 0;
+    var idmap:Map<anette.Connection, Int> = new Map();
+
     function onData(connection:anette.Connection)
     {
-        trace("onData " + connection.input.readInt16());
+        trace("onData " + idmap.get(connection) + " : " + connection.input.readInt16());
 
         var msgLength = connection.input.readInt8();
         var msg = connection.input.readString(msgLength);
@@ -38,6 +41,8 @@ class TestServer
     function onConnection(connection:anette.Connection)
     {
         trace("CONNNECTION");
+        ids++;
+        idmap.set(connection, ids);
 
         connection.output.writeInt16(42);
 

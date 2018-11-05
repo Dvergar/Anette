@@ -3,22 +3,23 @@ package anette;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;
+import haxe.io.Bytes;
 import anette.Bytes;
 
 
 #if (cpp||neko)
 class Server implements ISocket extends BaseHandler
 {
+    public var connections:Map<sys.net.Socket, Connection> = new Map();
     var serverSocket:sys.net.Socket;
     var sockets:Array<sys.net.Socket>;
-    public var connections:Map<sys.net.Socket, Connection> = new Map();
+    var buffer:Bytes = Bytes.alloc(8192);
 
     public function new(address:String, port:Int)
     {
         super();
         serverSocket = new sys.net.Socket();
         serverSocket.bind(new sys.net.Host(address), port);
-        // serverSocket.output.bigEndian = true;
         serverSocket.input.bigEndian = true;
         serverSocket.listen(1);
         serverSocket.setBlocking(false);
@@ -35,6 +36,7 @@ class Server implements ISocket extends BaseHandler
     public function pump()
     {
         var inputSockets = sys.net.Socket.select(sockets, null, null, 0);
+        // trace("inputSockets " + sockets.length);
         for(socket in inputSockets.read)
         {
             if(socket == serverSocket)
@@ -55,30 +57,25 @@ class Server implements ISocket extends BaseHandler
             {
                 try
                 {
-                    while(true)
+                    var conn = connections.get(socket);
+
+                    // MattTuttle paste
+                    var bytesReceived = socket.input.readBytes(buffer, 0, buffer.length);
+                    // check that buffer was filled
+                    if (bytesReceived > 0)
                     {
-                        var conn = connections.get(socket);
-                        conn.buffer.addByte(socket.input.readByte());
+                        conn.buffer.addBytes(buffer, 0, bytesReceived);
+                        conn.readDatas();
                     }
                 }
-                catch(ex:haxe.io.Eof)
+                catch(ex:Dynamic)
                 {
+                    trace("SOCKET ERROR :");
+                    trace(ex);
                     disconnectSocket(socket, connections.get(socket));
-                }
-                catch(ex:haxe.io.Error)
-                {
-                    if(ex == haxe.io.Error.Blocked) {}
-                    if(ex == haxe.io.Error.Overflow)
-                        trace("OVERFLOW");
-                    if(ex == haxe.io.Error.OutsideBounds)
-                        trace("OUTSIDE BOUNDS");
                 }
             }
         }
-
-        // INPUT MESSAGES
-        for(conn in connections)
-            conn.readDatas();
     }
 
     @:allow(anette.Connection)
@@ -86,6 +83,7 @@ class Server implements ISocket extends BaseHandler
                                        connection:Connection)
     {
         // connectionSocket.shutdown(true, true);
+        trace("Anette : disconnectSocket");
         connectionSocket.close();
 
         // CLEAN UP
@@ -113,28 +111,9 @@ class Server implements ISocket extends BaseHandler
 
     public function flush()
     {
-        // // GET BROADCAST BUFFER
-        // var broadcastLength = this.output.length;
-        // var broadcastBytes = this.output.getBytes();
-
-        // for(socket in connections.keys())
-        // {
-        //     var conn = connections.get(socket);
-
-        //     // PUSH BROADCAST BUFFER TO EACH CONNECTION
-        //     if(broadcastLength > 0)
-        //         conn.output.writeBytes(broadcastBytes, 0, broadcastLength);
-
-        //     conn.flush();
-        // }
-
-        // // RESET BROADCAST BUFFER
-        // this.output = new BytesOutput();
-        // this.output.bigEndian = true;
         for(socket in connections.keys())
         {
             var conn = connections.get(socket);
-            // trace("conn " + conn.output.length);
             conn.flush();
         }
     }
