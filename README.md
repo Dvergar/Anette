@@ -15,37 +15,37 @@ Anette
 
 **Note:** *Client js target will only be served by Node backend for now.*  
 **Note2:** *Node backend depends on [nodejs library](https://github.com/dionjwa/nodejs-std), but since it's overriding some of the haxe library classes it only works if you remove or rename the `haxe` folder in `HaxeToolkit\haxe\lib\nodejs\x,x,x\` hoping that it doesn't break your application.*
-**Note3:** *C++ target seems to have strange disconnection behaviour atm.*  
+**Note3:** *C++ target seems to have strange disconnection behaviour atm.*
 
-##Server
+# Server
 
-**new Server(ip:String, port:Int)**
+`new Server(ip:String, port:Int)`
 
 Creates a TCP server object & bind it to the given host/port.
 
-**server.pump()**
+`server.pump()`
 
 Looks for new messages and put them in the buffer, generally used in a loop.
 
-**server.flush()**
+`server.flush()`
 
 Sends datas from the buffer into the internet tubes, generally used in a loop.
 
-**server.onConnection**
+`server.onConnection`
 
 Callback function of type `Connection->Void` when a connection is established.
 
-**server.onDisconnection**
+`server.onDisconnection`
 
 Callback function of type `Connection->Void` when a client disconnects.
 
-**server.onData**
+`server.onData`
 
 Callback function of type `Connection->Void` when data is received. You should then use `connection.input` to read the datas, input inherits from [`haxe.io.BytesInput`](http://api.haxe.org/haxe/io/BytesInput.html).
 
 example : `server.onData = function(connection:Connection) { connection.input.readString(11) };`
 
-**server.protocol**
+`server.protocol`
 
 Property of type `Protocol`.
 
@@ -58,48 +58,48 @@ Protocol used to pack & unpack datas. Note that if you're not using any predefin
 
 example: `server.protocol = new Prefixed();`
 
-**server.timeout**
+`server.timeout`
 
 Property of type `Float`, defines the time of inactivity in seconds before the connection is dropped.
 
 
-##Client
+## Client
 
-**new Client()**
+`new Client()`
 
 Creates a TCP client object.
 
-**client.pump()**
+`client.pump()`
 
 Looks for new messages and put them in the buffer, generally used in a loop.
 
-**client.flush()**
+`client.flush()`
 
 Sends datas from the buffer into the internet tubes, generally used in a loop.
 
-**client.disconnect()**
+`client.disconnect()`
 
 Drops the connection.
 
-**client.connected**
+`client.connected`
 
 Property of type `Bool`, returns the state of the connection.
 
-**client.onConnection**
+`client.onConnection`
 
 Callback function of type `Connection->Void` when a connection is established.
 
-**client.onDisconnection**
+`client.onDisconnection`
 
 Callback function of type `Connection->Void` when a client disconnects.
 
-**client.onData**
+`client.onData`
 
 Callback function of type `Connection->Void` when data is received. You should then use `connection.input` to read the datas, input inherits from [`haxe.io.BytesInput`](http://api.haxe.org/haxe/io/BytesInput.html).
 
 example : `client.onData = function(connection:Connection) { connection.input.readString(11) };`
 
-**client.protocol**
+`client.protocol`
 
 Property of type `Protocol`.
 
@@ -112,20 +112,20 @@ Protocol used to pack & unpack datas. Note that if you're not using any predefin
 
 example: `client.protocol = new Prefixed();`
 
-**client.timeout**
+`client.timeout`
 
 Property of type `Float`, defines the time of inactivity in seconds before the connection is dropped.
 
 
 ##Connection
 
-**connection.output**
+`connection.output`
 
 Object which inherits from [`haxe.io.BytesOutput`](http://api.haxe.org/haxe/io/BytesOutput.html). This is what you should use to send datas.
 
 example : `connection.output.writeString("hello world");`
 
-**connection.input**
+`connection.input`
 
 Object which inherits from [`haxe.io.BytesInput`](http://api.haxe.org/haxe/io/BytesInput.html). This is what you should use to read datas.
 
