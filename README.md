@@ -14,7 +14,7 @@ Anette
 * UDP sockets.
 
 **Note:** *Client js target will only be served by Node backend for now.*  
-**Note2:** *Node backend depends on [nodejs library](https://github.com/dionjwa/nodejs-std), but since it's overriding some of the haxe library classes it only works if you remove or rename the `haxe` folder in `HaxeToolkit\haxe\lib\nodejs\x,x,x\` hoping that it doesn't break your application.*
+**Note2:** *Node backend depends on [nodejs library](https://github.com/dionjwa/nodejs-std), but since it's overriding some of the haxe library classes it only works if you remove or rename the `haxe` folder in `HaxeToolkit\haxe\lib\nodejs\x,x,x\` hoping that it doesn't break your application.*  
 **Note3:** *C++ target seems to have strange disconnection behaviour atm.*
 
 # Server
