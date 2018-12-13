@@ -7,7 +7,7 @@ import haxe.io.Bytes;
 import anette.Bytes;
 
 
-#if (cpp||neko)
+#if (cpp||neko||hl||eval)
 class Server implements ISocket extends BaseHandler
 {
     public var connections:Map<sys.net.Socket, Connection> = new Map();
@@ -70,8 +70,10 @@ class Server implements ISocket extends BaseHandler
                 }
                 catch(ex:Dynamic)
                 {
-                    trace("SOCKET ERROR :");
+                    trace("SOCKET ERROR : EXCEPTION CALLSTACK");
                     trace(ex);
+                    trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()));
+                    trace("END EXCEPTION CALLSTACK");
                     disconnectSocket(socket, connections.get(socket));
                 }
             }
