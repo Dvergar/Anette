@@ -3,7 +3,7 @@ package anette;
 
 #if flash
 typedef Socket = flash.net.Socket;
-#elseif (cpp||neko||java||hl||eval)
+#elseif (cpp||neko||java||hl||eval||python)
 typedef Socket = sys.net.Socket;
 #elseif (nodejs && !websocket)
 typedef Socket = js.Node.NodeNetSocket;

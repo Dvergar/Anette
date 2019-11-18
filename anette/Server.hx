@@ -7,7 +7,7 @@ import haxe.io.Bytes;
 import anette.Bytes;
 
 
-#if (cpp||neko||hl||eval)
+#if (cpp||neko||hl||eval||python)
 class Server implements ISocket extends BaseHandler
 {
     public var connections:Map<sys.net.Socket, Connection> = new Map();
@@ -23,7 +23,7 @@ class Server implements ISocket extends BaseHandler
         serverSocket.input.bigEndian = true;
         serverSocket.listen(1);
         serverSocket.setBlocking(false);
-        serverSocket.setFastSend(false);
+        serverSocket.setFastSend(true);
         sockets = [serverSocket];
         trace("server " + address + " / " + port);
     }
